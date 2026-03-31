@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREW CAPITAL — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --bg2: #111113;
+  --bg3: #1a1a1e;
+  --border: #2a2a30;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --green: #2dce89;
+  --red: #f5365c;
+  --yellow: #ffd600;
+  --blue: #5e72e4;
+  --text: #e8e8f0;
+  --muted: #6b6b7a;
+  --card: #13131a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* AUTH SCREEN */
+#auth-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-logo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 48px;
+  letter-spacing: 6px;
+  color: var(--gold);
+}
+
+.auth-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.auth-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 32px;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auth-input {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  letter-spacing: 3px;
+}
+
+.auth-input:focus { border-color: var(--gold); }
+
+.auth-btn {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  padding: 12px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 18px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.auth-btn:hover { background: var(--gold2); }
+.auth-error { color: var(--red); font-size: 12px; text-align: center; display: none; }
+
+/* MAIN APP */
+#app { display: none; }
+
+/* HEADER */
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 24px;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+
+.logo span {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  letter-spacing: 2px;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.live-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--green);
+  letter-spacing: 2px;
+}
+
+.time-display {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* TABS */
+nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  padding: 0 24px;
+}
+
+.tab {
+  padding: 14px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* CONTENT */
+.tab-content { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
+.tab-content.active { display: block; }
+
+/* GRID */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.col-span-2 { grid-column: span 2; }
+.col-span-3 { grid-column: span 3; }
+
+@media (max-width: 768px) {
+  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: span 1; }
+  .col-span-3 { grid-column: span 1; }
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.card-value {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 36px;
+  letter-spacing: 2px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.card-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.green { color: var(--green); }
+.red { color: var(--red); }
+.gold { color: var(--gold); }
+.yellow { color: var(--yellow); }
+
+/* REGIME BANNER */
+.regime-banner {
+  background: linear-gradient(135deg, #1a1205 0%, #13131a 100%);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.regime-label {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--gold);
+}
+
+.regime-detail {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* SIGNAL CARD */
+.signal-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.signal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+}
+
+.signal-ticker {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 32px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+
+.signal-decision {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.decision-execute { background: rgba(45,206,137,0.15); color: var(--green); border: 1px solid var(--green); }
+.decision-skip { background: rgba(245,54,92,0.15); color: var(--red); border: 1px solid var(--red); }
+.decision-half { background: rgba(255,214,0,0.15); color: var(--yellow); border: 1px solid var(--yellow); }
+.decision-none { background: rgba(107,107,122,0.15); color: var(--muted); border: 1px solid var(--border); }
+
+/* GATE ROW */
+.gate-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+.gate-row:last-child { border-bottom: none; }
+.gate-name { color: var(--muted); }
+.gate-pass { color: var(--green); }
+.gate-fail { color: var(--red); }
+.gate-na { color: var(--muted); }
+
+/* TASK LIST */
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.task-item:last-child { border-bottom: none; }
+
+.task-num {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  color: var(--gold);
+  min-width: 24px;
+  line-height: 1.2;
+}
+
+.task-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.task-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* APPROVAL BUTTONS */
+.approval-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.approval-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.approval-detail {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.approval-actions { display: flex; gap: 8px; }
+
+.btn-approve {
+  background: rgba(45,206,137,0.15);
+  color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-approve:hover { background: rgba(45,206,137,0.3); }
+
+.btn-reject {
+  background: rgba(245,54,92,0.15);
+  color: var(--red);
+  border: 1px solid var(--red);
+  border-radius: 4px;
+  padding: 8px 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-reject:hover { background: rgba(245,54,92,0.3); }
+
+/* KILL SWITCH */
+.killswitch-btn {
+  width: 100%;
+  background: rgba(245,54,92,0.1);
+  border: 2px solid var(--red);
+  border-radius: 4px;
+  padding: 20px;
+  color: var(--red);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 24px;
+  letter-spacing: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.killswitch-btn:hover { background: rgba(245,54,92,0.2); }
+
+.resume-btn {
+  width: 100%;
+  background: rgba(45,206,137,0.1);
+  border: 2px solid var(--green);
+  border-radius: 4px;
+  padding: 20px;
+  color: var(--green);
+  font-family: 'Bebas Neue', cursive;
+  font-size: 24px;
+  letter-spacing: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  margin-top: 8px;
+  display: none;
+}
+
+.resume-btn:hover { background: rgba(45,206,137,0.2); }
+
+/* CHATBOT */
+.chat-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-message {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.chat-user {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  align-self: flex-end;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.chat-bot {
+  background: linear-gradient(135deg, #1a1205 0%, #13131a 100%);
+  border: 1px solid var(--gold);
+  align-self: flex-start;
+  color: var(--text);
+}
+
+.chat-bot-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.chat-input-area {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+
+.chat-input:focus { border-color: var(--gold); }
+
+.chat-send {
+  background: var(--gold);
+  color: #000;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 16px;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+
+.chat-thinking {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 8px;
+  display: none;
+}
+
+/* WORKFLOW STATUS */
+.workflow-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+.workflow-item:last-child { border-bottom: none; }
+.workflow-name { color: var(--text); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.status-green { background: var(--green); }
+.status-yellow { background: var(--yellow); }
+.status-red { background: var(--red); }
+
+/* COMPLIANCE */
+.deadline-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.deadline-item:last-child { border-bottom: none; }
+.deadline-name { font-size: 13px; color: var(--text); }
+.deadline-days {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.days-ok { background: rgba(45,206,137,0.15); color: var(--green); }
+.days-warn { background: rgba(255,214,0,0.15); color: var(--yellow); }
+.days-urgent { background: rgba(245,54,92,0.15); color: var(--red); }
+
+/* SECTION HEADER */
+.section-header {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  letter-spacing: 4px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  margin-top: 24px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-header:first-child { margin-top: 0; }
+
+/* LESSON CARD */
+.lesson-card {
+  background: linear-gradient(135deg, #0d1a0d 0%, #13131a 100%);
+  border: 1px solid rgba(45,206,137,0.3);
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.lesson-number {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.lesson-title {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.lesson-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* MILESTONE */
+.milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.milestone-aum {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 20px;
+  color: var(--gold);
+  min-width: 80px;
+}
+
+.milestone-unlock {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+}
+
+.milestone-status {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.status-locked { background: rgba(107,107,122,0.2); color: var(--muted); }
+.status-unlocked { background: rgba(45,206,137,0.15); color: var(--green); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* STAT ROW */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; }
+.stat-value { color: var(--text); font-weight: 500; }
+
+/* IR PIPELINE */
+.pipeline-stage {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px;
+  min-height: 80px;
+}
+
+.pipeline-stage-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.pipeline-contact {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .pipeline-grid { grid-template-columns: repeat(2, 1fr); }
+  nav { overflow-x: auto; }
+  .tab { padding: 12px 14px; font-size: 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">BREW CAPITAL</div>
+  <div class="auth-sub">Command Center — Restricted Access</div>
+  <div class="auth-box">
+    <input type="password" class="auth-input" id="password-input" placeholder="PASSWORD" onkeydown="if(event.key==='Enter')login()">
+    <button class="auth-btn" onclick="login()">ENTER</button>
+    <div class="auth-error" id="auth-error">Access Denied</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="logo">BREW CAPITAL <span>COMMAND CENTER</span></div>
+    </div>
+    <div class="header-right">
+      <div class="live-dot"></div>
+      <div class="live-label">LIVE</div>
+      <div class="time-display" id="clock"></div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="tab active" onclick="showTab('command')">⚡ COMMAND</div>
+    <div class="tab" onclick="showTab('intelligence')">📊 INTELLIGENCE</div>
+    <div class="tab" onclick="showTab('school')">📚 SCHOOL</div>
+    <div class="tab" onclick="showTab('investor')" style="margin-left:auto;color:#5e72e4">🔒 INVESTOR PORTAL</div>
+  </nav>
+
+  <!-- TAB 1: COMMAND -->
+  <div class="tab-content active" id="tab-command">
+
+    <!-- Regime Banner -->
+    <div class="regime-banner">
+      <div>
+        <div class="regime-label">⚠ STRESS REGIME ACTIVE</div>
+        <div class="regime-detail" style="margin-top:4px">VIX 31.05 — All positions at 0.5x sizing — 5 gates required</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:'Bebas Neue',cursive;font-size:32px;color:var(--yellow)">31.05</div>
+        <div class="regime-detail">VIX INDEX</div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+
+      <!-- NAV -->
+      <div class="card">
+        <div class="card-label">Current NAV</div>
+        <div class="card-value">$188,676</div>
+        <div class="card-sub red">▼ $11,324 from high water mark</div>
+      </div>
+
+      <!-- Sharpe -->
+      <div class="card">
+        <div class="card-label">Rolling Sharpe</div>
+        <div class="card-value gold">0.0</div>
+        <div class="card-sub">Target: 3.0+ | Building track record</div>
+      </div>
+
+      <!-- Drawdown -->
+      <div class="card">
+        <div class="card-label">Current Drawdown</div>
+        <div class="card-value yellow">5.66%</div>
+        <div class="card-sub">Max allowed: 4% | Recovery protocol active</div>
+      </div>
+
+      <!-- Today's Signal -->
+      <div class="signal-card col-span-2">
+        <div class="card-label">Today's Signal</div>
+        <div id="signal-display">
+          <div class="signal-ticker">AWAITING SIGNAL</div>
+          <div class="signal-decision decision-none">SYSTEM MONITORING</div>
+          <div style="margin-top:16px">
+            <div class="gate-row"><span class="gate-name">Gate 1 — Zacks</span><span class="gate-na">PENDING</span></div>
+            <div class="gate-row"><span class="gate-name">Gate 2 — LevelFields</span><span class="gate-na">PENDING</span></div>
+            <div class="gate-row"><span class="gate-name">Gate 3 — Technical</span><span class="gate-na">PENDING</span></div>
+            <div class="gate-row"><span class="gate-name">Gate 4 — Kelly</span><span class="gate-na">PENDING</span></div>
+            <div class="gate-row"><span class="gate-name">Gate 5 — Regime</span><span class="gate-na">PENDING</span></div>
+          </div>
+          <div style="margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">
+            Next signal check: 6:00 AM CST Tuesday
+          </div>
+        </div>
+      </div>
+
+      <!-- Your Economics -->
+      <div class="card">
+        <div class="card-label">Your Economics</div>
+        <div class="stat-row"><span class="stat-label">Mgmt Fee Today</span><span class="stat-value green">$10.96</span></div>
+        <div class="stat-row"><span class="stat-label">Mgmt Fee YTD</span><span class="stat-value green">$10.96</span></div>
+        <div class="stat-row"><span class="stat-label">Perf Fee YTD</span><span class="stat-value muted">$0.00</span></div>
+        <div class="stat-row"><span class="stat-label">Annual Run Rate</span><span class="stat-value">$4,000</span></div>
+        <div class="stat-row"><span class="stat-label">Break-even AUM</span><span class="stat-value gold">$193K</span></div>
+        <div style="margin-top:12px;background:var(--bg3);border-radius:4px;height:6px;overflow:hidden">
+          <div style="background:var(--gold);height:100%;width:97.8%"></div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:4px">97.8% to break-even</div>
+      </div>
+
+      <!-- Today's Tasks -->
+      <div class="card col-span-2">
+        <div class="card-label">Today's Tasks</div>
+        <div class="task-item">
+          <div class="task-num">1</div>
+          <div>
+            <div class="task-text">Review overnight futures and VIX levels</div>
+            <div class="task-time">9:15 AM CST — 3 minutes</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-num">2</div>
+          <div>
+            <div class="task-text">Check signal system status — approve any pending Y actions</div>
+            <div class="task-time">9:18 AM CST — 5 minutes</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-num">3</div>
+          <div>
+            <div class="task-text">Send IR email to today's target — check @BrewCapitalApprovalsBot</div>
+            <div class="task-time">8:00 AM CST — 2 minutes</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:4px;font-family:'DM Mono',monospace;font-size:11px;color:var(--green)">
+          ✓ GRANDMASTER DECISION: NO TRADE TODAY — stand aside and preserve capital
+        </div>
+      </div>
+
+      <!-- Compliance Countdown -->
+      <div class="card">
+        <div class="card-label">Compliance Deadlines</div>
+        <div class="deadline-item">
+          <div>
+            <div class="deadline-name">Form D</div>
+            <div style="font-size:11px;color:var(--muted)">Accession 0002124864-26-000001</div>
+          </div>
+          <div class="deadline-days days-ok">✓ FILED</div>
+        </div>
+        <div class="deadline-item">
+          <div>
+            <div class="deadline-name">Reg S-P Policy</div>
+            <div style="font-size:11px;color:var(--muted)">Written policy required</div>
+          </div>
+          <div class="deadline-days days-warn">65 DAYS</div>
+        </div>
+        <div class="deadline-item">
+          <div>
+            <div class="deadline-name">Wyoming Annual Reports</div>
+            <div style="font-size:11px;color:var(--muted)">All 3 entities</div>
+          </div>
+          <div class="deadline-days days-ok">337 DAYS</div>
+        </div>
+        <div class="deadline-item">
+          <div>
+            <div class="deadline-name">Texas Blue Sky</div>
+            <div style="font-size:11px;color:var(--muted)">First TX investor</div>
+          </div>
+          <div class="deadline-days days-ok">NOT TRIGGERED</div>
+        </div>
+        <div class="deadline-item">
+          <div>
+            <div class="deadline-name">IBKR Application</div>
+          </div>
+          <div class="deadline-days days-warn">PENDING</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Approvals -->
+    <div class="section-header">PENDING APPROVALS</div>
+    <div id="approvals-container">
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);padding:20px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:4px">
+        No pending approvals — System monitoring for signals
+      </div>
+    </div>
+
+    <!-- Kill Switch -->
+    <div class="section-header">SYSTEM CONTROL</div>
+    <div class="card">
+      <div class="card-label">Emergency Controls</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Kill switch stops all workflow executions immediately. Send KILLSWITCH to @BrewCapitalApprovalsBot or use button below.</div>
+      <button class="killswitch-btn" onclick="activateKillSwitch()">⚠ KILLSWITCH — HALT ALL SYSTEMS</button>
+      <button class="resume-btn" id="resume-btn" onclick="resumeSystems()">✓ RESUME ALL SYSTEMS</button>
+      <div id="ks-status" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);margin-top:8px;text-align:center">
+        SYSTEM STATUS: ARMED AND READY
+      </div>
+    </div>
+
+    <!-- Grandmaster Chat -->
+    <div class="section-header">GRANDMASTER CHATBOT</div>
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-message chat-bot">
+          <div class="chat-bot-label">GRANDMASTER — 128 MINDS</div>
+          Ask me anything. Stock analysis, trade decisions, tax questions, lifestyle purchases, social situations. I synthesize all 128 minds and give you one clear answer.
+        </div>
+      </div>
+      <div class="thinking chat-thinking" id="chat-thinking">Synthesizing 128 minds...</div>
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Ask the Grandmaster anything..." onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chat-send" onclick="sendChat()">ASK</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: INTELLIGENCE -->
+  <div class="tab-content" id="tab-intelligence">
+
+    <div class="grid-2">
+
+      <!-- Performance -->
+      <div class="card">
+        <div class="card-label">Fund Performance</div>
+        <div class="stat-row"><span class="stat-label">NAV</span><span class="stat-value">$188,676</span></div>
+        <div class="stat-row"><span class="stat-label">High Water Mark</span><span class="stat-value">$200,000</span></div>
+        <div class="stat-row"><span class="stat-label">Daily P&L</span><span class="stat-value red">-$11,324</span></div>
+        <div class="stat-row"><span class="stat-label">MTD Return</span><span class="stat-value red">-5.66%</span></div>
+        <div class="stat-row"><span class="stat-label">Sharpe (30d)</span><span class="stat-value gold">Building...</span></div>
+        <div class="stat-row"><span class="stat-label">Max Drawdown</span><span class="stat-value yellow">5.66%</span></div>
+        <div class="stat-row"><span class="stat-label">Win Rate</span><span class="stat-value">0 trades logged</span></div>
+      </div>
+
+      <!-- Open Positions -->
+      <div class="card">
+        <div class="card-label">Open Positions</div>
+        <div class="approval-card" style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:'Bebas Neue',cursive;font-size:24px;color:var(--gold)">EFXT</div>
+              <div style="font-size:12px;color:var(--muted)">238 shares @ $21.05 limit</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--yellow)">QUEUED</div>
+              <div style="font-size:12px;color:var(--muted)">Stop: $19.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="approval-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:'Bebas Neue',cursive;font-size:24px;color:var(--gold)">GCT</div>
+              <div style="font-size:12px;color:var(--muted)">55 shares @ $43.28 limit</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--yellow)">QUEUED</div>
+              <div style="font-size:12px;color:var(--muted)">Stop: $38.50</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">
+          Market opens Tuesday 9:30AM ET — orders will fill then
+        </div>
+      </div>
+
+      <!-- Kelly Sizing -->
+      <div class="card">
+        <div class="card-label">Kelly Sizing — Stress Regime 0.5x</div>
+        <div class="stat-row"><span class="stat-label">Score 45-50 (Lollapalooza)</span><span class="stat-value green">$1,415 / 0.75% NAV</span></div>
+        <div class="stat-row"><span class="stat-label">Score 38-44 (High Conv.)</span><span class="stat-value">$944 / 0.5% NAV</span></div>
+        <div class="stat-row"><span class="stat-label">Score 31-37 (Standard)</span><span class="stat-value yellow">$472 / 0.25% NAV</span></div>
+        <div class="stat-row"><span class="stat-label">Score below 31</span><span class="stat-value red">SKIP — No trade</span></div>
+        <div class="divider"></div>
+        <div class="stat-row"><span class="stat-label">Max risk per trade</span><span class="stat-value">1% NAV = $1,887</span></div>
+        <div class="stat-row"><span class="stat-label">Stress multiplier</span><span class="stat-value yellow">0.5x active</span></div>
+      </div>
+
+      <!-- AUM Projections -->
+      <div class="card">
+        <div class="card-label">AUM Projections</div>
+        <div class="stat-row"><span class="stat-label">Current NAV</span><span class="stat-value">$200K (paper)</span></div>
+        <div class="stat-row"><span class="stat-label">First Close Target</span><span class="stat-value gold">$500K — April 23</span></div>
+        <div class="stat-row"><span class="stat-label">Days to First Close</span><span class="stat-value yellow">24 days</span></div>
+        <div class="stat-row"><span class="stat-label">Phase 2 Target</span><span class="stat-value">$2M — Month 6</span></div>
+        <div class="stat-row"><span class="stat-label">Phase 3 Target</span><span class="stat-value">$10M — Month 18</span></div>
+        <div class="divider"></div>
+        <div class="stat-row"><span class="stat-label">Mgmt fee at $500K</span><span class="stat-value green">$10K/yr</span></div>
+        <div class="stat-row"><span class="stat-label">Mgmt fee at $2M</span><span class="stat-value green">$40K/yr</span></div>
+        <div class="stat-row"><span class="stat-label">Mgmt fee at $10M</span><span class="stat-value green">$200K/yr</span></div>
+      </div>
+
+    </div>
+
+    <!-- IR Pipeline -->
+    <div class="section-header">IR PIPELINE</div>
+    <div class="pipeline-grid">
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-label">SOURCED</div>
+        <div class="pipeline-contact">Ramex Inc</div>
+        <div class="pipeline-contact">JDH Capital</div>
+        <div class="pipeline-contact">Colton Capital</div>
+        <div class="pipeline-contact">Patterson Thoma</div>
+        <div class="pipeline-contact">Keppler Funds</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-label">CONTACTED</div>
+        <div style="font-size:11px;color:var(--muted)">IR emails queuing...</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-label">RESPONDED</div>
+        <div style="font-size:11px;color:var(--muted)">Awaiting replies</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-label">MEETING</div>
+        <div style="font-size:11px;color:var(--muted)">None yet</div>
+      </div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-label">COMMITTED</div>
+        <div style="font-size:11px;color:var(--muted)">$0 committed</div>
+      </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="section-header">SYSTEM HEALTH</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Workflow Status</div>
+        <div class="workflow-item"><span class="workflow-name">W1 Morning Signal</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W2 LevelFields</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W3 VIX Crisis</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W4 IR Email</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W5 Investor Reply</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W6 Heartbeat</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W7 Monday Brief</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W8 Macro Calendar</span><span class="status-dot status-yellow"></span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Workflow Status (cont.)</div>
+        <div class="workflow-item"><span class="workflow-name">W9 Cybersecurity</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W10 AI Optimization</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W11 NAV Officer</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W12 Drawdown Recovery</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W13 Outcome Learning</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W17 Failsafe Agent</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">W18 Grandmaster Chat</span><span class="status-dot status-green"></span></div>
+        <div class="workflow-item"><span class="workflow-name">Kill Switch</span><span class="status-dot status-yellow"></span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 3: SCHOOL -->
+  <div class="tab-content" id="tab-school">
+
+    <!-- Today's Lesson -->
+    <div class="section-header">TODAY'S LESSON</div>
+    <div class="lesson-card">
+      <div class="lesson-number">LESSON — MARCH 30, 2026</div>
+      <div class="lesson-title">THE DISCIPLINE OF DATA DEPENDENCY</div>
+      <div class="lesson-text">
+        Even the most sophisticated analytical framework — 128 minds synthesized — produces zero value without quality input data. Today MTB scored 31/50 and was correctly rejected. Gate 4 Kelly failed because the risk/reward ratio didn't meet our 2.5:1 minimum. The system worked exactly as designed.
+        <br><br>
+        <strong style="color:var(--gold)">The principle:</strong> Systematic trading means trusting the system when it says no. The hardest discipline is not pulling the trigger on a trade that feels good but fails the gates. Howard Marks calls this second-level thinking — while everyone else is buying the buyback catalyst, we asked why the risk/reward isn't there.
+        <br><br>
+        <strong style="color:var(--green)">What you are learning:</strong> Patience is a position. Capital preserved today is ammunition for tomorrow's lollapalooza signal.
+      </div>
+    </div>
+
+    <!-- The 10 Commandments -->
+    <div class="section-header">THE 10 COMMANDMENTS OF BREW CAPITAL</div>
+    <div class="card">
+      <div class="task-item"><div class="task-num">I</div><div class="task-text">Never trade when Gate 4 Kelly fails. No exceptions.</div></div>
+      <div class="task-item"><div class="task-num">II</div><div class="task-text">Score below 31 = SKIP. Always. Every time.</div></div>
+      <div class="task-item"><div class="task-num">III</div><div class="task-text">VIX above 35 = no new trades. Cash is a position.</div></div>
+      <div class="task-item"><div class="task-num">IV</div><div class="task-text">Never exceed 1% risk per trade. In stress regime: 0.5%.</div></div>
+      <div class="task-item"><div class="task-num">V</div><div class="task-text">Send one IR email every trading day. No exceptions.</div></div>
+      <div class="task-item"><div class="task-num">VI</div><div class="task-text">Log every trade to the Learning Table within 24 hours.</div></div>
+      <div class="task-item"><div class="task-num">VII</div><div class="task-text">Honor every stop loss. Never move stops to avoid a loss.</div></div>
+      <div class="task-item"><div class="task-num">VIII</div><div class="task-text">The Central Advisor veto is final. No overrides.</div></div>
+      <div class="task-item"><div class="task-num">IX</div><div class="task-text">Investor data lives only in Proton. Never in Google Sheets.</div></div>
+      <div class="task-item"><div class="task-num">X</div><div class="task-text">Review Agent 25 weekly report every Monday. Act on it.</div></div>
+    </div>
+
+    <!-- Gate System -->
+    <div class="section-header">THE 5-GATE SYSTEM EXPLAINED</div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Gate 1 — Zacks Signal</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          Zacks Rank 1 or 2 required. ESP (Earnings Surprise Prediction) above 3%. VGM grade A or B. This is your starting filter — only the top stocks pass. Think of it as the bouncer at the door.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gate 2 — LevelFields Catalyst</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          An approved catalyst event with win rate above 60%. Approved events: buybacks, insider buying, FDA approvals, earnings beats, M&A. This is the reason the stock moves — you need a specific trigger.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gate 3 — Technical Setup</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          Stock must be above 50MA and 200MA. Volume above 150% of average. RSI between 45-65. RSI(2) below 20 for optimal entry timing. The chart must confirm the fundamental story.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gate 4 — Kelly Risk/Reward</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          Risk/reward ratio must exceed 2.5:1. Portfolio correlation below 0.65. Fractional Kelly sizing at 25-50% of theoretical maximum. IF THIS GATE FAILS = SKIP. No exceptions. This protects your capital.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gate 5 — Regime Check</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          VIX level determines sizing. SPY must be above 200MA. No FOMC meetings or earnings within 14 days of entry. The macro environment must support the trade.
+        </div>
+      </div>
+      <div class="card" style="background:linear-gradient(135deg,#1a1205 0%,#13131a 100%);border-color:var(--gold)">
+        <div class="card-label" style="color:var(--gold)">Lollapalooza — 5+ Factors</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.7">
+          When 5 or more independent signals all confirm simultaneously, Munger calls this a lollapalooza. Congressional buying + insider buying + unusual options flow + Zacks Rank 1 + LevelFields catalyst = 5% NAV position. The rarest and most powerful signal.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifestyle Milestones -->
+    <div class="section-header">LIFESTYLE MILESTONES</div>
+    <div class="card">
+      <div class="milestone-item">
+        <div class="milestone-aum">$193K</div>
+        <div class="milestone-unlock">Break-even — fund covers all expenses</div>
+        <div class="milestone-status status-unlocked">ACTIVE</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$500K</div>
+        <div class="milestone-unlock">Bespoke suits + F1 race attendance (COTA/Miami) + quality watch</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$1M</div>
+        <div class="milestone-unlock">Mardi Gras krewe membership (Bacchus) + club membership + first class travel</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$2M</div>
+        <div class="milestone-unlock">Snow polo (St. Moritz/Aspen) + Monaco Grand Prix + Wimbledon debentures</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$5M</div>
+        <div class="milestone-unlock">Augusta Masters + Davos + private aviation (NetJets/Wheels Up)</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$10M</div>
+        <div class="milestone-unlock">Art Basel VIP + supercar + yacht charter for investor events</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+      <div class="milestone-item">
+        <div class="milestone-aum">$25M+</div>
+        <div class="milestone-unlock">Full institutional platform + all 182 strategies active</div>
+        <div class="milestone-status status-locked">LOCKED</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 4: INVESTOR PORTAL -->
+  <div class="tab-content" id="tab-investor">
+    <div style="max-width:600px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:6px;color:var(--gold)">BREW CAPITAL LP</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;margin-top:4px">INVESTOR PORTAL — CONFIDENTIAL</div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card" style="text-align:center">
+          <div class="card-label">NAV Per Unit</div>
+          <div class="card-value">$1.00</div>
+          <div class="card-sub">Inception basis</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="card-label">Total Return</div>
+          <div class="card-value red">-5.66%</div>
+          <div class="card-sub">Paper trading phase</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="card-label">Sharpe Ratio</div>
+          <div class="card-value gold">—</div>
+          <div class="card-sub">Building track record</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="card-label">Max Drawdown</div>
+          <div class="card-value yellow">5.66%</div>
+          <div class="card-sub">Recovery protocol active</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-label">Fund Details</div>
+        <div class="stat-row"><span class="stat-label">Entity</span><span class="stat-value">Brew Capital Limited Partnership</span></div>
+        <div class="stat-row"><span class="stat-label">CIK</span><span class="stat-value">0002124864</span></div>
+        <div class="stat-row"><span class="stat-label">EIN</span><span class="stat-value">41-5090198</span></div>
+        <div class="stat-row"><span class="stat-label">Form D</span><span class="stat-value green">Filed ✓ 0002124864-26-000001</span></div>
+        <div class="stat-row"><span class="stat-label">Strategy</span><span class="stat-value">Systematic Quantitative</span></div>
+        <div class="stat-row"><span class="stat-label">Minimum</span><span class="stat-value">$100,000</span></div>
+        <div class="stat-row"><span class="stat-label">Fees</span><span class="stat-value">2% Management / 20% Performance</span></div>
+        <div class="stat-row"><span class="stat-label">Target Return</span><span class="stat-value">25-35% annually</span></div>
+        <div class="stat-row"><span class="stat-label">Target Sharpe</span><span class="stat-value">3.0+</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Contact</div>
+        <div class="stat-row"><span class="stat-label">Managing Member</span><span class="stat-value">Tarun Jakkaraju</span></div>
+        <div class="stat-row"><span class="stat-label">Email</span><span class="stat-value">invest@brewcapitallp.com</span></div>
+        <div class="stat-row"><span class="stat-label">Phone</span><span class="stat-value">(346) 800-8862</span></div>
+        <div style="margin-top:16px;font-size:11px;color:var(--muted);line-height:1.6">
+          This communication is intended solely for accredited investors. Not an offer to sell securities. Past performance does not guarantee future results.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// AUTH
+const PASSWORD = 'brewcapital2026';
+
+function login() {
+  const input = document.getElementById('password-input').value;
+  if (input === PASSWORD) {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    startClock();
+  } else {
+    document.getElementById('auth-error').style.display = 'block';
+    document.getElementById('password-input').value = '';
+  }
+}
+
+// CLOCK
+function startClock() {
+  function update() {
+    const now = new Date();
+    const options = { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', options) + ' CST';
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+// TABS
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`#tab-${tab}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// KILL SWITCH
+let killed = false;
+function activateKillSwitch() {
+  if (confirm('ACTIVATE KILLSWITCH? This will halt all trading systems.')) {
+    killed = true;
+    document.querySelector('.killswitch-btn').style.display = 'none';
+    document.getElementById('resume-btn').style.display = 'block';
+    document.getElementById('ks-status').textContent = '⚠ KILLSWITCH ACTIVE — ALL SYSTEMS HALTED';
+    document.getElementById('ks-status').style.color = 'var(--red)';
+    alert('KILLSWITCH ACTIVATED. Also send KILLSWITCH to @BrewCapitalApprovalsBot to stop n8n workflows.');
+  }
+}
+
+function resumeSystems() {
+  killed = false;
+  document.querySelector('.killswitch-btn').style.display = 'block';
+  document.getElementById('resume-btn').style.display = 'none';
+  document.getElementById('ks-status').textContent = 'SYSTEM STATUS: ARMED AND READY';
+  document.getElementById('ks-status').style.color = 'var(--green)';
+  alert('Systems resumed. Also send RESUME to @BrewCapitalApprovalsBot.');
+}
+
+// CHATBOT
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const messages = document.getElementById('chat-messages');
+  const thinking = document.getElementById('chat-thinking');
+  const question = input.value.trim();
+  if (!question) return;
+
+  // Add user message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'chat-message chat-user';
+  userMsg.textContent = question;
+  messages.appendChild(userMsg);
+  input.value = '';
+  messages.scrollTop = messages.scrollHeight;
+
+  // Show thinking
+  thinking.style.display = 'block';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: `You are the BREW CAPITAL GRANDMASTER — 128 minds synthesized. VIX STRESS regime 0.5x sizing. NAV $200K paper trading. Form D FILED accession 0002124864-26-000001. Fund: Brew Capital LP Wyoming Reg D 506b $100K minimum 2/20 fees target Sharpe 3.0+.\n\nFor any stock or trade question run full 5-gate analysis. For tax questions cite the IRC section. For lifestyle questions calculate after-tax cost. For social questions give specific actionable advice.\n\nAlways output ONLY:\nGRANDMASTER DECISION: [one sentence, direct]\nCONFIDENCE: [X/10]\nPLAIN ENGLISH: [two sentences, smart 12-year-old level]\nWHAT YOU ARE LEARNING: [one sentence principle]\nTHE MIND: [which of the 128 minds drove this]\n\nQuestion: ${question}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const answer = data.content[0].text;
+
+    thinking.style.display = 'none';
+
+    const botMsg = document.createElement('div');
+    botMsg.className = 'chat-message chat-bot';
+    botMsg.innerHTML = `<div class="chat-bot-label">GRANDMASTER — 128 MINDS</div>${answer.replace(/\n/g, '<br>')}`;
+    messages.appendChild(botMsg);
+    messages.scrollTop = messages.scrollHeight;
+
+  } catch (err) {
+    thinking.style.display = 'none';
+    const errMsg = document.createElement('div');
+    errMsg.className = 'chat-message chat-bot';
+    errMsg.innerHTML = `<div class="chat-bot-label">GRANDMASTER</div>Use @BrewCapitalBot in Telegram for full analysis. Dashboard chat requires API connection.`;
+    messages.appendChild(errMsg);
+    messages.scrollTop = messages.scrollHeight;
+  }
+}
+</script>
+
+</body>
+</html>
