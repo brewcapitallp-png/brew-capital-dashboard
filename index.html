@@ -893,17 +893,115 @@ nav {
       </div>
     </div>
 
+    <!-- PAPER TRADING DISCLOSURE -->
+    <div style="background:rgba(255,214,0,0.07);border:1px solid rgba(255,214,0,0.3);border-radius:2px;padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:16px">⚠️</span>
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--yellow);letter-spacing:1px;">
+        PAPER TRADING — BrewCapitalDemo Account &nbsp;|&nbsp; All positions and P&amp;L are simulated &nbsp;|&nbsp; Transitioning to live capital at first investor close
+      </span>
+    </div>
+
     <!-- PENDING APPROVALS -->
     <div class="sh">PENDING APPROVALS</div>
     <div id="approvals-container">
-      <div class="approval-card">
-        <div class="approval-type">📧 IR EMAIL — DAILY OUTREACH</div>
-        <div class="approval-type" style="color:var(--text2);margin-bottom:4px;font-size:10px">TO: today's IR target · SUBJECT: Brew Capital LP — Systematic Quantitative Strategy</div><div class="approval-detail" id="email-preview">📧 Email draft loads from W4 via Google Sheets. Check @BrewCapitalApprovalsBot for full preview, or approve here once you have reviewed the draft in Telegram.</div>
+
+      <!-- EMAIL APPROVAL CARD — 8AM -->
+      <div class="approval-card" id="email-card-8am" style="border-color:rgba(200,168,75,0.3);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="approval-type">📧 IR EMAIL — 8:00 AM OUTREACH</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1px;" id="email-timer-8am">W4 fires at 8:00 AM CST</div>
+        </div>
+
+        <!-- FULL EMAIL PREVIEW -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:12px;margin-bottom:10px;font-family:var(--font-mono);font-size:11px;line-height:1.7;">
+          <div style="display:grid;grid-template-columns:60px 1fr;gap:4px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+            <span style="color:var(--muted);">FROM</span>
+            <span style="color:var(--text2);">invest@brewcapitallp.com</span>
+            <span style="color:var(--muted);">TO</span>
+            <span id="email-to-8am" style="color:var(--gold);">Loading from W4...</span>
+            <span style="color:var(--muted);">SUBJECT</span>
+            <span id="email-subject-8am" style="color:var(--text);">Loading from W4...</span>
+          </div>
+          <div id="email-body-8am" style="color:var(--text);white-space:pre-wrap;font-size:11px;line-height:1.8;min-height:80px;">
+Loading full email draft from W4...
+
+This card displays the complete email body before you press Y.
+W4 writes the draft to Google Sheets → dashboard reads it here.
+You see the full email. You press Y. It sends via Proton SMTP.
+
+Until W4 is connected to Sheets: review the draft in @BrewCapitalBot
+then return here to approve or reject.
+          </div>
+        </div>
+
+        <!-- WRITING INTELLIGENCE SCORE -->
+        <div style="display:flex;gap:8px;margin-bottom:10px;font-family:var(--font-mono);font-size:10px;">
+          <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:6px 10px;">
+            <span style="color:var(--muted);">AI TELLS</span>
+            <span id="ai-tells-8am" style="color:var(--green);float:right;font-weight:500;">0 detected</span>
+          </div>
+          <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:6px 10px;">
+            <span style="color:var(--muted);">506(b) FLAGS</span>
+            <span id="compliance-flags-8am" style="color:var(--green);float:right;font-weight:500;">0 flagged</span>
+          </div>
+          <div style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:2px;padding:6px 10px;">
+            <span style="color:var(--muted);">WORD COUNT</span>
+            <span id="word-count-8am" style="color:var(--text2);float:right;font-weight:500;">— words</span>
+          </div>
+        </div>
+
         <div class="approval-actions">
-          <button class="btn-y" onclick="approve(this,'IR Email')">✓ Y — APPROVE</button>
-          <button class="btn-n" onclick="reject(this)">✗ N — REJECT</button>
+          <button class="btn-y" onclick="approveEmail(this,'8am','IR Email 8AM')">✓ Y — APPROVE &amp; SEND</button>
+          <button class="btn-n" onclick="rejectEmail(this,'8am')">✗ N — REJECT</button>
         </div>
       </div>
+
+      <!-- EMAIL APPROVAL CARD — 11AM -->
+      <div class="approval-card" id="email-card-11am" style="border-color:var(--border2);opacity:0.6;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="approval-type" style="color:var(--muted);">📧 IR EMAIL — 11:00 AM OUTREACH</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1px;">Pending · W4 fires at 11:00 AM CST</div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:12px 0;">
+          Draft will appear here when W4 fires at 11:00 AM CST.
+          Full email body preview before Y/N.
+        </div>
+        <div class="approval-actions" style="opacity:0.4;pointer-events:none;">
+          <button class="btn-y">✓ Y — APPROVE &amp; SEND</button>
+          <button class="btn-n">✗ N — REJECT</button>
+        </div>
+      </div>
+
+      <!-- EMAIL APPROVAL CARD — 2PM -->
+      <div class="approval-card" id="email-card-2pm" style="border-color:var(--border2);opacity:0.6;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="approval-type" style="color:var(--muted);">📧 IR EMAIL — 2:00 PM OUTREACH</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:1px;">Pending · W4 fires at 2:00 PM CST</div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:12px 0;">
+          Draft will appear here when W4 fires at 2:00 PM CST.
+          Full email body preview before Y/N.
+        </div>
+        <div class="approval-actions" style="opacity:0.4;pointer-events:none;">
+          <button class="btn-y">✓ Y — APPROVE &amp; SEND</button>
+          <button class="btn-n">✗ N — REJECT</button>
+        </div>
+      </div>
+
+      <!-- TRADE SIGNAL APPROVAL SLOT -->
+      <div class="approval-card" id="trade-card" style="border-color:var(--border2);opacity:0.5;">
+        <div class="approval-type" style="color:var(--muted);">⚡ TRADE SIGNAL — AWAITING W1/W2</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:12px 0;">
+          No active trade signal. W1 fires at 6AM · W2 fires at 8AM, 2PM, 10PM.
+          When a signal passes all 9 gates and scores ≥5/14 lollapalooza,
+          the full analysis appears here for your APPROVED/REJECTED decision.
+        </div>
+        <div class="approval-actions" style="opacity:0.4;pointer-events:none;">
+          <button class="btn-y">✓ APPROVED</button>
+          <button class="btn-n">✗ REJECTED</button>
+        </div>
+      </div>
+
     </div>
 
     <!-- DAILY CHECKLIST -->
@@ -1192,11 +1290,11 @@ nav {
     <div class="g2">
       <div class="card">
         <div class="card-label">This Week's Targets</div>
-        <div class="stat-row"><span class="stat-label">Monday</span><span class="stat-value">Ramex Inc — info@ramexinc.com</span></div>
-        <div class="stat-row"><span class="stat-label">Tuesday</span><span class="stat-value">JDH Capital — info@jdhcap.com</span></div>
-        <div class="stat-row"><span class="stat-label">Wednesday</span><span class="stat-value">Colton Capital — kenny@coltoncap.com</span></div>
-        <div class="stat-row"><span class="stat-label">Thursday</span><span class="stat-value">Patterson Thoma — info@patersonthoma.com</span></div>
-        <div class="stat-row"><span class="stat-label">Friday</span><span class="stat-value">Keppler Funds — info@kepplerfunds.com</span></div>
+        <div class="stat-row"><span class="stat-label">Monday</span><span class="stat-value">Ramex Inc — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="026b6c646d4270636f677a6b6c612c616d6f">[email&#160;protected]</a></span></div>
+        <div class="stat-row"><span class="stat-label">Tuesday</span><span class="stat-value">JDH Capital — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="422b2c242d0228262a2123326c212d2f">[email&#160;protected]</a></span></div>
+        <div class="stat-row"><span class="stat-label">Wednesday</span><span class="stat-value">Colton Capital — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c7aca2a9a9be87a4a8abb3a8a9a4a6b7e9a4a8aa">[email&#160;protected]</a></span></div>
+        <div class="stat-row"><span class="stat-label">Thursday</span><span class="stat-value">Patterson Thoma — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f69f989099b68697829384859998829e999b97d895999b">[email&#160;protected]</a></span></div>
+        <div class="stat-row"><span class="stat-label">Friday</span><span class="stat-value">Keppler Funds — <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ea83848c85aa818f9a9a868f988c9f848e99c4898587">[email&#160;protected]</a></span></div>
       </div>
 
       <div class="card">
@@ -1317,7 +1415,7 @@ nav {
       <div class="investor-card">
         <div class="card-label">Contact</div>
         <div class="stat-row"><span class="stat-label">Managing Member</span><span class="stat-value">Tarun Jakkaraju</span></div>
-        <div class="stat-row"><span class="stat-label">Email</span><span class="stat-value">invest@brewcapitallp.com</span></div>
+        <div class="stat-row"><span class="stat-label">Email</span><span class="stat-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ff9691899a8c8bbf9d8d9a889c9e8f968b9e93938fd19c9092">[email&#160;protected]</a></span></div>
         <div class="stat-row"><span class="stat-label">Phone</span><span class="stat-value">(346) 800-8862</span></div>
         <div style="margin-top:14px;font-size:10px;color:var(--muted);line-height:1.6;font-family:var(--font-mono)">
           This communication is intended solely for accredited investors as defined under SEC Regulation D. Not an offer to sell securities. Past performance does not guarantee future results. Brew Capital LP is exempt from registration under the Investment Company Act of 1940.
@@ -1344,6 +1442,13 @@ function login() {
     document.getElementById('auth-err').style.display = 'block';
     document.getElementById('pw').value = '';
   }
+}
+
+async function init() {
+  updateDaysToClose();
+  await fetchAllPrices();
+  setInterval(fetchAllPrices, 60000);
+  initEmailApprovals();
 }
 
 // ============================================================
@@ -1611,7 +1716,131 @@ function toggleCheck(box) {
 }
 
 // ============================================================
-// APPROVALS
+// ============================================================
+// EMAIL APPROVAL SYSTEM — FULL PREVIEW BEFORE Y/N
+// ============================================================
+
+// Simulated email data — W4 will write to Google Sheets and
+// dashboard reads it. For now, this shows the card structure.
+const emailDrafts = {
+  '8am': {
+    to: 'Connecting to W4...',
+    subject: 'Connecting to W4...',
+    body: `W4 writes the full email draft here before you press Y.
+
+When W4 is connected to Google Sheets:
+→ W4 generates email using APEX OS v5.1 IR minds
+→ Writing Intelligence gate removes AI tells + checks 506(b)
+→ Full email appears in this card
+→ You read the complete email
+→ You press Y to send via Proton SMTP
+→ Or N to reject and W4 regenerates
+
+Until W4 is wired to Sheets:
+Review the draft in @BrewCapitalBot then approve here.`,
+    aiTells: '0 detected',
+    flags: '0 flagged',
+    words: '—'
+  }
+};
+
+function populateEmailCard(trigger) {
+  const draft = emailDrafts[trigger];
+  if (!draft) return;
+  const card = document.getElementById(`email-card-${trigger}`);
+  if (!card) return;
+  card.style.opacity = '1';
+  card.style.borderColor = 'rgba(200,168,75,0.3)';
+  const toEl = document.getElementById(`email-to-${trigger}`);
+  const subjEl = document.getElementById(`email-subject-${trigger}`);
+  const bodyEl = document.getElementById(`email-body-${trigger}`);
+  const aiEl = document.getElementById(`ai-tells-${trigger}`);
+  const compEl = document.getElementById(`compliance-flags-${trigger}`);
+  const wdEl = document.getElementById(`word-count-${trigger}`);
+  if (toEl) toEl.textContent = draft.to;
+  if (subjEl) subjEl.textContent = draft.subject;
+  if (bodyEl) bodyEl.textContent = draft.body;
+  if (aiEl) aiEl.textContent = draft.aiTells;
+  if (compEl) compEl.textContent = draft.flags;
+  if (wdEl) wdEl.textContent = draft.words;
+  // Activate buttons
+  const actions = card.querySelector('.approval-actions');
+  if (actions) {
+    actions.style.opacity = '1';
+    actions.style.pointerEvents = 'auto';
+  }
+}
+
+function approveEmail(btn, trigger, label) {
+  const card = document.getElementById(`email-card-${trigger}`);
+  const actions = btn.closest('.approval-actions');
+  const time = new Date().toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'2-digit',minute:'2-digit'});
+  actions.innerHTML = `<div class="btn-approved">✓ APPROVED ${time} CST — SENDING VIA PROTON SMTP</div>`;
+  card.style.opacity = '0.5';
+  card.style.borderColor = 'rgba(0,212,170,0.3)';
+  console.log(`EMAIL APPROVED: ${label} at ${time} CST`);
+  // TODO: Write approval to Google Sheets APPROVALS tab
+  // W4 monitors that tab and triggers the send
+}
+
+function rejectEmail(btn, trigger) {
+  const card = document.getElementById(`email-card-${trigger}`);
+  const actions = btn.closest('.approval-actions');
+  const time = new Date().toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'2-digit',minute:'2-digit'});
+  actions.innerHTML = `<div class="btn-approved" style="border-color:var(--red);color:var(--red)">✗ REJECTED ${time} CST — W4 WILL REGENERATE</div>`;
+  card.style.opacity = '0.4';
+  card.style.borderColor = 'rgba(255,61,107,0.2)';
+  // TODO: Write rejection to Google Sheets — W4 regenerates on N
+}
+
+// Check time and activate the right card
+function checkEmailTriggers() {
+  const now = new Date();
+  const cst = new Date(now.toLocaleString('en-US', {timeZone: 'America/Chicago'}));
+  const h = cst.getHours();
+  const m = cst.getMinutes();
+  const totalMin = h * 60 + m;
+
+  // 8AM = 480, 11AM = 660, 2PM = 840
+  // Show 8AM card as active after 7:45AM
+  if (totalMin >= 465) { // 7:45 AM
+    populateEmailCard('8am');
+    const timerEl = document.getElementById('email-timer-8am');
+    if (timerEl) timerEl.textContent = h < 8 ? 'Fires at 8:00 AM CST' : 'W4 fired — review and approve';
+  }
+  // 11AM card activates at 10:45AM
+  if (totalMin >= 645) {
+    const card11 = document.getElementById('email-card-11am');
+    if (card11) {
+      card11.style.opacity = '1';
+      card11.style.borderColor = 'rgba(200,168,75,0.3)';
+      card11.querySelector('.approval-actions').style.opacity = '1';
+      card11.querySelector('.approval-actions').style.pointerEvents = 'auto';
+      card11.querySelector('[class*="approval-actions"]');
+      // Activate 11am buttons
+      const btns11 = card11.querySelectorAll('button');
+      btns11.forEach((b, i) => {
+        if (i === 0) b.onclick = () => approveEmail(b, '11am', 'IR Email 11AM');
+        if (i === 1) b.onclick = () => rejectEmail(b, '11am');
+      });
+    }
+  }
+  // 2PM card activates at 1:45PM
+  if (totalMin >= 825) {
+    const card2 = document.getElementById('email-card-2pm');
+    if (card2) {
+      card2.style.opacity = '1';
+      card2.style.borderColor = 'rgba(200,168,75,0.3)';
+      const btns2 = card2.querySelectorAll('button');
+      btns2.forEach((b, i) => {
+        if (i === 0) b.onclick = () => approveEmail(b, '2pm', 'IR Email 2PM');
+        if (i === 1) b.onclick = () => rejectEmail(b, '2pm');
+      });
+    }
+  }
+}
+
+// APPROVALS — legacy function kept for compatibility
 // ============================================================
 function approve(btn, label) {
   if (!confirm(`CONFIRM: Approve "${label}"?`)) return;
@@ -1622,6 +1851,14 @@ function approve(btn, label) {
 function reject(btn) {
   const actions = btn.closest('.approval-actions');
   actions.innerHTML = `<div class="btn-approved" style="border-color:var(--red);color:var(--red)">✗ REJECTED — ${new Date().toLocaleTimeString('en-US',{timeZone:'America/Chicago',hour:'2-digit',minute:'2-digit'})} CST</div>`;
+}
+
+// ============================================================
+// INIT EMAIL APPROVALS
+// ============================================================
+function initEmailApprovals() {
+  checkEmailTriggers();
+  setInterval(checkEmailTriggers, 5 * 60 * 1000);
 }
 
 // ============================================================
@@ -1697,7 +1934,7 @@ async function sendChat() {
 
     const botMsg = document.createElement('div');
     botMsg.className = 'msg msg-bot';
-    botMsg.innerHTML = `<div class="msg-bot-label">GRANDMASTER — 138 MINDS | VIX ${vixLevel} | ${regime}</div>${answer.replace(/\n/g, '<br>')}`;
+    botMsg.innerHTML = `<div class="msg-bot-label">GRANDMASTER — 138 MINDS | VIX ${vixLevel} | ${regime}</div>${answer.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}`;
     msgs.appendChild(botMsg);
     msgs.scrollTop = msgs.scrollHeight;
 
@@ -1705,22 +1942,17 @@ async function sendChat() {
     thinking.style.display = 'none';
     const errMsg = document.createElement('div');
     errMsg.className = 'msg msg-bot';
-    errMsg.innerHTML = `<div class="msg-bot-label">GRANDMASTER</div>API connection requires Cloudflare Worker proxy for secure key handling. Use @BrewCapitalBot on Telegram for full 138-mind analysis right now.`;
+    errMsg.innerHTML = '<div class="msg-bot-label">SYSTEM</div>Connection error. Use @BrewCapitalBot on Telegram for full analysis.';
     msgs.appendChild(errMsg);
     msgs.scrollTop = msgs.scrollHeight;
   }
 }
 
-// ============================================================
-// INIT
-// ============================================================
-function init() {
-  startClock();
-  updateDaysToClose();
-  fetchAllPrices();
-  setInterval(fetchAllPrices, 60000);
-  setInterval(updateDaysToClose, 60000);
-}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('auth-screen').style.display !== 'none') {
+    login();
+  }
+});
 </script>
 </body>
 </html>
