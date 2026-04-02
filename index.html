@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brew Capital — Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090b;
+  --bg2: #0f1115;
+  --bg3: #161920;
+  --bg4: #1c1f27;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --gold: #c9a84c;
+  --gold2: #e8c87a;
+  --gold3: rgba(201,168,76,0.08);
+  --green: #27ae60;
+  --green2: #2ecc71;
+  --red: #c0392b;
+  --red2: #e74c3c;
+  --blue: #2980b9;
+  --blue2: #4a9eff;
+  --purple: #8e44ad;
+  --orange: #e67e22;
+  --muted: rgba(255,255,255,0.3);
+  --muted2: rgba(255,255,255,0.5);
+  --text: rgba(255,255,255,0.85);
+  --mono: 'Space Mono', monospace;
+  --sans: 'Sora', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:var(--sans); font-size:14px; min-height:100vh; }
+::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:var(--bg2); } ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+
+/* TOPBAR */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; height:52px; border-bottom:1px solid var(--border);
+  background:var(--bg); position:sticky; top:0; z-index:200;
+}
+.brand { font-family:var(--mono); font-size:12px; color:var(--gold); letter-spacing:0.18em; }
+.brand em { color:var(--muted); font-style:normal; font-weight:400; }
+.topbar-center { display:flex; align-items:center; gap:6px; }
+.regime-badge {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.1em;
+  padding:4px 10px; border-radius:3px;
+  border:1px solid rgba(231,76,60,0.4); color:#e74c3c;
+  background:rgba(231,76,60,0.07);
+}
+.regime-badge.normal { border-color:rgba(46,204,113,0.4); color:var(--green2); background:rgba(46,204,113,0.07); }
+.topbar-right { display:flex; align-items:center; gap:16px; }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green2); animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.clock { font-family:var(--mono); font-size:11px; color:var(--muted2); }
+.form-d { font-family:var(--mono); font-size:10px; color:var(--green2); letter-spacing:0.08em; }
+
+/* NAV TABS */
+.nav { display:flex; gap:0; border-bottom:1px solid var(--border); padding:0 28px; background:var(--bg); overflow-x:auto; }
+.nav::-webkit-scrollbar { display:none; }
+.navtab {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.14em; text-transform:uppercase;
+  padding:13px 18px; cursor:pointer; color:var(--muted); white-space:nowrap;
+  border-bottom:2px solid transparent; transition:all 0.2s; user-select:none;
+}
+.navtab.active { color:var(--gold); border-bottom-color:var(--gold); }
+.navtab:hover:not(.active) { color:var(--text); }
+
+/* PANELS */
+.panel { padding:24px 28px; display:none; }
+.panel.active { display:block; }
+
+/* GRID */
+.g4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.g3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+.g21 { display:grid; grid-template-columns:2fr 1fr; gap:16px; margin-bottom:20px; }
+
+/* STAT CARD */
+.sc {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; padding:14px 16px;
+}
+.sc-lbl { font-family:var(--mono); font-size:9px; letter-spacing:0.14em; color:var(--muted); text-transform:uppercase; margin-bottom:7px; }
+.sc-val { font-family:var(--mono); font-size:20px; font-weight:700; color:var(--text); line-height:1; }
+.sc-val.gold { color:var(--gold2); }
+.sc-val.up { color:var(--green2); }
+.sc-val.dn { color:var(--red2); }
+.sc-sub { font-size:11px; color:var(--muted); margin-top:5px; }
+
+/* SECTION HEADER */
+.sh {
+  font-family:var(--mono); font-size:9px; letter-spacing:0.18em; color:var(--muted);
+  text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px;
+}
+.sh::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* BOX */
+.box { background:var(--bg2); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:20px; }
+.box-head { padding:11px 16px; background:var(--bg3); border-bottom:1px solid var(--border); font-family:var(--mono); font-size:10px; letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; }
+
+/* TABLE */
+table { width:100%; border-collapse:collapse; }
+th { font-family:var(--mono); font-size:9px; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase; padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); font-weight:400; }
+td { padding:10px 14px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(255,255,255,0.015); }
+.tk { font-family:var(--mono); font-weight:700; color:var(--gold2); font-size:13px; }
+.up { color:var(--green2); font-family:var(--mono); font-size:12px; }
+.dn { color:var(--red2); font-family:var(--mono); font-size:12px; }
+.mn { font-family:var(--mono); font-size:12px; }
+.mu { color:var(--muted); font-size:12px; }
+
+/* TAGS */
+.tag { display:inline-block; font-size:9px; padding:2px 7px; border-radius:2px; font-family:var(--mono); letter-spacing:0.06em; font-weight:700; }
+.tg-live { background:rgba(46,204,113,0.1); color:var(--green2); border:1px solid rgba(46,204,113,0.25); }
+.tg-long { background:rgba(74,158,255,0.1); color:var(--blue2); border:1px solid rgba(74,158,255,0.2); }
+.tg-hedge { background:rgba(201,168,76,0.1); color:var(--gold); border:1px solid rgba(201,168,76,0.25); }
+.tg-fix { background:rgba(231,76,60,0.1); color:var(--red2); border:1px solid rgba(231,76,60,0.25); }
+.tg-todo { background:rgba(255,255,255,0.04); color:var(--muted2); border:1px solid var(--border); }
+.tg-now { background:rgba(231,76,60,0.15); color:#ff6b6b; border:1px solid rgba(231,76,60,0.35); }
+.tg-next { background:rgba(201,168,76,0.12); color:var(--gold2); border:1px solid rgba(201,168,76,0.3); }
+.tg-done { background:rgba(46,204,113,0.1); color:var(--green2); border:1px solid rgba(46,204,113,0.25); }
+.tg-paper { background:rgba(142,68,173,0.1); color:#c39bd3; border:1px solid rgba(142,68,173,0.25); }
+
+/* KILL SWITCH */
+.ks {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; margin-bottom:20px;
+}
+.ks-info { }
+.ks-lbl { font-family:var(--mono); font-size:9px; letter-spacing:0.15em; color:var(--muted); text-transform:uppercase; margin-bottom:4px; }
+.ks-st { font-family:var(--mono); font-size:11px; color:var(--green2); }
+.ks-st.killed { color:var(--red2); }
+.ks-actions { display:flex; gap:8px; }
+.btn-halt {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:7px 16px; border-radius:3px; cursor:pointer;
+  border:1px solid var(--red2); color:var(--red2);
+  background:rgba(231,76,60,0.06); transition:all 0.2s;
+}
+.btn-halt:hover { background:rgba(231,76,60,0.15); }
+.btn-resume {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:7px 16px; border-radius:3px; cursor:pointer;
+  border:1px solid var(--green2); color:var(--green2);
+  background:rgba(46,204,113,0.06); display:none; transition:all 0.2s;
+}
+
+/* APPROVAL CARDS */
+.approval-card {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:8px; padding:16px; margin-bottom:12px;
+  border-left:3px solid var(--gold);
+}
+.approval-card.trade { border-left-color:var(--blue2); }
+.approval-card.linkedin { border-left-color:var(--purple); }
+.ac-type { font-family:var(--mono); font-size:9px; letter-spacing:0.12em; color:var(--muted); text-transform:uppercase; margin-bottom:6px; }
+.ac-subject { font-size:14px; font-weight:500; color:var(--text); margin-bottom:6px; }
+.ac-meta { font-size:11px; color:var(--muted2); margin-bottom:10px; }
+.ac-body {
+  background:var(--bg3); border:1px solid var(--border); border-radius:4px;
+  padding:12px; font-size:12px; color:var(--muted2); line-height:1.6;
+  margin-bottom:10px; max-height:120px; overflow-y:auto;
+}
+.ac-scores { display:flex; gap:8px; margin-bottom:12px; }
+.ac-score { font-family:var(--mono); font-size:9px; padding:3px 8px; border-radius:2px; background:var(--bg3); border:1px solid var(--border); color:var(--muted2); }
+.ac-score.good { color:var(--green2); border-color:rgba(46,204,113,0.2); }
+.ac-score.warn { color:var(--gold); border-color:rgba(201,168,76,0.2); }
+.ac-btns { display:flex; gap:8px; }
+.btn-y {
+  flex:1; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:9px; border-radius:4px; cursor:pointer;
+  background:rgba(46,204,113,0.1); border:1px solid rgba(46,204,113,0.3);
+  color:var(--green2); transition:all 0.2s;
+}
+.btn-y:hover { background:rgba(46,204,113,0.2); }
+.btn-n {
+  flex:1; font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:9px; border-radius:4px; cursor:pointer;
+  background:rgba(231,76,60,0.06); border:1px solid rgba(231,76,60,0.25);
+  color:var(--red2); transition:all 0.2s;
+}
+.btn-n:hover { background:rgba(231,76,60,0.15); }
+
+/* WORKFLOW GRID */
+.wf-wrap { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.wf {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:6px; padding:10px 12px;
+}
+.wf-n { font-family:var(--mono); font-size:9px; color:var(--muted); margin-bottom:3px; }
+.wf-name { font-size:12px; font-weight:500; margin-bottom:5px; }
+
+/* SECTOR BARS */
+.sb-row { display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+.sb-name { font-size:12px; width:130px; color:var(--text); flex-shrink:0; }
+.sb-track { flex:1; height:5px; background:var(--bg4); border-radius:3px; overflow:hidden; }
+.sb-fill { height:100%; border-radius:3px; }
+.sb-pct { font-family:var(--mono); font-size:11px; width:44px; text-align:right; flex-shrink:0; }
+
+/* CHATBOT */
+.chat-box { background:var(--bg2); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.chat-msgs { height:360px; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; }
+.cm { padding:10px 14px; border-radius:6px; font-size:13px; line-height:1.55; max-width:88%; }
+.cm-bot { background:var(--bg3); border:1px solid var(--border); align-self:flex-start; white-space:pre-wrap; }
+.cm-user { background:var(--gold3); border:1px solid rgba(201,168,76,0.2); align-self:flex-end; color:var(--gold2); }
+.chat-footer { border-top:1px solid var(--border); padding:10px 14px; display:flex; gap:8px; }
+.chat-inp {
+  flex:1; background:var(--bg3); border:1px solid var(--border);
+  border-radius:4px; padding:8px 12px; color:var(--text);
+  font-family:var(--sans); font-size:13px; outline:none;
+}
+.chat-inp:focus { border-color:rgba(201,168,76,0.4); }
+.chat-inp::placeholder { color:var(--muted); }
+.chat-send {
+  font-family:var(--mono); font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+  padding:8px 16px; border-radius:4px; cursor:pointer;
+  background:var(--gold3); border:1px solid rgba(201,168,76,0.3);
+  color:var(--gold2); transition:all 0.2s;
+}
+.chat-send:hover { background:rgba(201,168,76,0.15); }
+.thinking { font-size:12px; color:var(--muted); font-style:italic; padding:8px 14px; display:none; }
+
+/* SCHOOL */
+.lesson-card {
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+  padding:18px; margin-bottom:16px;
+}
+.lc-icon { font-size:20px; margin-bottom:8px; }
+.lc-title { font-family:var(--mono); font-size:10px; letter-spacing:0.14em; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
+.lc-body { font-size:13px; line-height:1.65; color:var(--text); }
+.lc-sub { font-size:12px; color:var(--muted2); margin-top:8px; }
+.progress-bar { background:var(--bg4); border-radius:3px; height:4px; margin-top:10px; }
+.progress-fill { height:4px; border-radius:3px; background:var(--gold); }
+.progress-label { display:flex; justify-content:space-between; font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:4px; }
+
+/* EXEC TIER TABLE */
+.tier-row { display:flex; align-items:center; gap:0; border-bottom:1px solid var(--border); padding:10px 14px; }
+.tier-row:last-child { border-bottom:none; }
+.tier-score { font-family:var(--mono); font-size:13px; font-weight:700; width:70px; }
+.tier-action { flex:1; font-size:13px; }
+.tier-human { font-size:12px; color:var(--muted2); width:180px; text-align:right; }
+
+/* COMPLIANCE ROW */
+.cr { display:flex; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border); gap:12px; }
+.cr:last-child { border-bottom:none; }
+.cr-name { flex:1; font-size:13px; }
+.cr-deadline { font-size:12px; color:var(--muted); width:160px; text-align:right; font-family:var(--mono); }
+
+/* BUILD ITEM */
+.bi { display:flex; align-items:center; gap:12px; padding:10px 14px; border-bottom:1px solid var(--border); }
+.bi:last-child { border-bottom:none; }
+.bi-num { font-family:var(--mono); font-size:10px; color:var(--muted); width:28px; flex-shrink:0; }
+.bi-body { flex:1; }
+.bi-name { font-size:13px; font-weight:500; margin-bottom:2px; }
+.bi-sub { font-size:11px; color:var(--muted); }
+
+/* DEVOTIONAL */
+.devotional {
+  background:linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 100%);
+  border:1px solid rgba(201,168,76,0.2); border-radius:8px; padding:20px; margin-bottom:20px;
+}
+.dev-verse { font-family:var(--mono); font-size:13px; color:var(--gold2); margin-bottom:8px; font-style:italic; line-height:1.5; }
+.dev-ref { font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:0.1em; margin-bottom:14px; }
+.dev-section { font-family:var(--mono); font-size:9px; letter-spacing:0.14em; color:var(--gold); text-transform:uppercase; margin-bottom:6px; margin-top:12px; }
+.dev-text { font-size:13px; line-height:1.65; color:var(--text); }
+.affirmation { background:rgba(46,204,113,0.05); border:1px solid rgba(46,204,113,0.15); border-radius:4px; padding:10px 14px; font-size:13px; color:var(--green2); line-height:1.6; margin-top:12px; font-style:italic; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">BREW CAPITAL LP <em>/ COMMAND CENTER v3.0</em></div>
+  <div class="topbar-center">
+    <div class="regime-badge" id="vix-badge">VIX 25.77 — STRESS 0.5x</div>
+  </div>
+  <div class="topbar-right">
+    <div class="form-d">FORM D FILED</div>
+    <div class="live-dot"></div>
+    <div class="clock" id="clock">--:--:-- CST</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="navtab active" onclick="sw('command',this)">Command</div>
+  <div class="navtab" onclick="sw('approvals',this)">Approvals</div>
+  <div class="navtab" onclick="sw('portfolio',this)">Portfolio</div>
+  <div class="navtab" onclick="sw('grandmaster',this)">Grandmaster</div>
+  <div class="navtab" onclick="sw('intelligence',this)">Intelligence</div>
+  <div class="navtab" onclick="sw('school',this)">School</div>
+  <div class="navtab" onclick="sw('build',this)">Build List</div>
+</div>
+
+<!-- ═══ COMMAND ═══ -->
+<div class="panel active" id="p-command">
+
+  <div class="ks">
+    <div class="ks-info">
+      <div class="ks-lbl">Kill Switch — W0</div>
+      <div class="ks-st" id="ks-st">BUILDING NOW — Clean rebuild in progress</div>
+    </div>
+    <div class="ks-actions">
+      <button class="btn-halt" onclick="killIt()">HALT ALL SYSTEMS</button>
+      <button class="btn-resume" id="btn-resume" onclick="resumeIt()">RESUME ALL</button>
+    </div>
+  </div>
+
+  <div class="g4">
+    <div class="sc"><div class="sc-lbl">NAV — Paper</div><div class="sc-val gold">$100,000</div><div class="sc-sub">Alpaca paper account</div></div>
+    <div class="sc"><div class="sc-lbl">Cash</div><div class="sc-val">$78,446</div><div class="sc-sub">78.4% reserve — VIX stress</div></div>
+    <div class="sc"><div class="sc-lbl">Daily P&L</div><div class="sc-val dn" id="daily-pnl">-$85.55</div><div class="sc-sub">9 positions open</div></div>
+    <div class="sc"><div class="sc-lbl">Buying Power</div><div class="sc-val">$178,358</div><div class="sc-sub">Alpaca paper</div></div>
+  </div>
+
+  <div class="g4">
+    <div class="sc"><div class="sc-lbl">Workflows live</div><div class="sc-val gold">15</div><div class="sc-sub">+W23 execution bridge</div></div>
+    <div class="sc"><div class="sc-lbl">APEX OS</div><div class="sc-val gold">v6.0</div><div class="sc-sub">277 minds | Fast-mode ON</div></div>
+    <div class="sc"><div class="sc-lbl">Form D</div><div class="sc-val up">FILED</div><div class="sc-sub">0002124864-26-000002</div></div>
+    <div class="sc"><div class="sc-lbl">First close</div><div class="sc-val">$0 / $500K</div><div class="sc-sub">IR pipeline building</div></div>
+  </div>
+
+  <div style="background:rgba(201,168,76,0.05);border:1px solid rgba(201,168,76,0.18);border-radius:8px;padding:14px 18px;margin-bottom:20px;">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;">April 2, 2026 — Macro Regime</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:12px;">
+      <span><span style="color:var(--muted)">VIX </span>25.77 STRESS</span>
+      <span><span style="color:var(--muted)">S&P </span>6,561 (-0.21%)</span>
+      <span><span style="color:var(--muted)">Oil </span>~$100 dropping</span>
+      <span><span style="color:var(--muted)">Gold </span>$428 war unwind</span>
+      <span><span style="color:var(--muted)">Iran </span>De-escalation signals</span>
+      <span><span style="color:var(--muted)">10Y </span>4.30%</span>
+      <span><span style="color:var(--muted)">Fed cuts </span>38% odds YE</span>
+    </div>
+  </div>
+
+  <div class="sh">Workflow status</div>
+  <div class="wf-wrap" style="margin-bottom:20px;">
+    <div class="wf"><div class="wf-n">W0</div><div class="wf-name">Kill Switch</div><span class="tag tg-now">BUILDING</span></div>
+    <div class="wf"><div class="wf-n">W1</div><div class="wf-name">Morning Signal</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W2</div><div class="wf-name">LevelFields Alert</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W3</div><div class="wf-name">VIX Crisis</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W4</div><div class="wf-name">IR Email Approval</div><span class="tag tg-fix">FIX NEEDED</span></div>
+    <div class="wf"><div class="wf-n">W5</div><div class="wf-name">Investor Reply</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W6</div><div class="wf-name">Daily Heartbeat</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W7</div><div class="wf-name">Monday Brief</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W8</div><div class="wf-name">Macro Calendar</div><span class="tag tg-todo">UNPUBLISHED</span></div>
+    <div class="wf"><div class="wf-n">W9</div><div class="wf-name">Cybersecurity</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W10</div><div class="wf-name">AI Optimization</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W11</div><div class="wf-name">NAV Officer</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W12</div><div class="wf-name">Drawdown Recovery</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W13</div><div class="wf-name">Learning Loop</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W17</div><div class="wf-name">Failsafe Agent</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W18</div><div class="wf-name">Grandmaster Bot</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W23</div><div class="wf-name">Alpaca Execution</div><span class="tag tg-live">LIVE</span></div>
+    <div class="wf"><div class="wf-n">W14</div><div class="wf-name">Pre-Market 4AM</div><span class="tag tg-todo">NOT BUILT</span></div>
+    <div class="wf"><div class="wf-n">W19</div><div class="wf-name">LinkedIn Intel</div><span class="tag tg-todo">NOT BUILT</span></div>
+    <div class="wf"><div class="wf-n">W20</div><div class="wf-name">7-Touch Follow-Up</div><span class="tag tg-todo">NOT BUILT</span></div>
+  </div>
+</div>
+
+<!-- ═══ APPROVALS ═══ -->
+<div class="panel" id="p-approvals">
+  <div class="sh">Pending approvals — W4 IR emails + trade signals + LinkedIn</div>
+
+  <div class="approval-card">
+    <div class="ac-type">IR Email — 8:00 AM Outreach — Touch 1</div>
+    <div class="ac-subject">Systematic quant emerging manager — Brew Capital LP</div>
+    <div class="ac-meta">To: [Apollo prospect] · Via: invest@brewcapitallp.com · W4 8AM trigger</div>
+    <div class="ac-body">
+W4 Proton SMTP not yet wired — email preview will appear here once W4 fix is complete.
+
+Until then: review drafts in @BrewCapitalBot, then approve here.
+
+Full email body will show automatically after W4 upgrade:
+— Complete subject line
+— Full personalized body
+— Writing Intelligence score
+— AI tells detected: 0
+— 506(b) compliance flags: 0
+    </div>
+    <div class="ac-scores">
+      <div class="ac-score warn">W4 FIX NEEDED</div>
+      <div class="ac-score">PROTON SMTP PENDING</div>
+      <div class="ac-score">3X DAILY NOT YET LIVE</div>
+    </div>
+    <div class="ac-btns">
+      <button class="btn-y" onclick="approve(this,'IR Email')">Y — APPROVE & SEND</button>
+      <button class="btn-n" onclick="reject(this)">N — REJECT & REGENERATE</button>
+    </div>
+  </div>
+
+  <div class="approval-card trade">
+    <div class="ac-type">Trade Signal — Autonomous Execution — Pending Build</div>
+    <div class="ac-subject">Autonomous trade signals will appear here once W23 tiers are built</div>
+    <div class="ac-meta">9+/14 lollapalooza = auto-executes | 7-8/14 = 30min window | 5-6/14 = Y/N here</div>
+    <div class="ac-body">
+After autonomous execution tiers are built into W23:
+
+HIGH CONVICTION (9+/14): Auto-executes. Confirmation appears here after fill.
+STANDARD (7-8/14): Alert appears here. 30 min window. Send STOP to cancel.
+WATCHLIST (5-6/14): Full analysis shown here. Press Y to execute, N to pass.
+
+UNDO command reverses any trade within 15 minutes.
+Options plays routed here once options branch is built.
+    </div>
+    <div class="ac-scores">
+      <div class="ac-score warn">AUTO-EXEC BUILDING NEXT</div>
+      <div class="ac-score">UNDO COMMAND PENDING</div>
+    </div>
+    <div class="ac-btns">
+      <button class="btn-y" onclick="approve(this,'Trade')">Y — EXECUTE TRADE</button>
+      <button class="btn-n" onclick="reject(this)">N — PASS</button>
+    </div>
+  </div>
+
+  <div class="approval-card linkedin">
+    <div class="ac-type">LinkedIn — Engagement Target — W19 (Not Yet Built)</div>
+    <div class="ac-subject">LinkedIn engagement approvals will appear here once W19 is built</div>
+    <div class="ac-meta">W19 monitors target investor LinkedIn activity daily</div>
+    <div class="ac-body">
+When W19 LinkedIn Intelligence is built:
+
+— Monitors target investor LinkedIn posts daily
+— Generates thoughtful, personalized comment
+— Shows target investor name, AUM, relationship stage
+— Full draft comment shown here for approval
+— Y posts comment, N regenerates
+
+This keeps your name in front of investors before IR emails arrive.
+    </div>
+    <div class="ac-scores">
+      <div class="ac-score">W19 NOT YET BUILT</div>
+    </div>
+    <div class="ac-btns">
+      <button class="btn-y" onclick="approve(this,'LinkedIn')">Y — POST COMMENT</button>
+      <button class="btn-n" onclick="reject(this)">N — REGENERATE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PORTFOLIO ═══ -->
+<div class="panel" id="p-portfolio">
+
+  <div class="g4">
+    <div class="sc"><div class="sc-lbl">Deployed</div><div class="sc-val">$14,032</div><div class="sc-sub">21.6% of NAV</div></div>
+    <div class="sc"><div class="sc-lbl">Cash reserve</div><div class="sc-val">$78,446</div><div class="sc-sub">STRESS regime — hold cash</div></div>
+    <div class="sc"><div class="sc-lbl">Daily P&L</div><div class="sc-val dn">-$85.55</div><div class="sc-sub">Day 1 of paper trading</div></div>
+    <div class="sc"><div class="sc-lbl">Positions</div><div class="sc-val">9</div><div class="sc-sub">Alpaca paper | ITA pending</div></div>
+  </div>
+
+  <div style="background:rgba(142,68,173,0.06);border:1px solid rgba(142,68,173,0.2);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-family:var(--mono);font-size:10px;color:#c39bd3;letter-spacing:0.1em;">
+    ALPACA PAPER ACCOUNT — PA3T6SKBOIK5 — Prices via Alpaca API (live when connected) — All positions marked PAPER
+  </div>
+
+  <div class="sh">Live positions — Alpaca paper</div>
+  <div class="box" style="margin-bottom:20px;">
+    <table>
+      <thead><tr><th>Ticker</th><th>Thesis</th><th>Qty</th><th>Entry</th><th>Live price</th><th>Mkt value</th><th>P&L</th><th>% NAV</th><th>Type</th></tr></thead>
+      <tbody id="positions-table">
+        <tr><td class="tk">GLD</td><td class="mu">Gold — war hedge / safe haven</td><td class="mn">8</td><td class="mn">$428.09</td><td class="mn" id="px-GLD">$428.31</td><td class="mn">$3,427</td><td class="dn">-$76.36</td><td class="mn">3.4%</td><td><span class="tag tg-hedge">HEDGE</span></td></tr>
+        <tr><td class="tk">XLV</td><td class="mu">Healthcare — defensive rotation</td><td class="mn">18</td><td class="mn">$146.49</td><td class="mn" id="px-XLV">$146.49</td><td class="mn">$2,637</td><td class="dn">-$4.41</td><td class="mn">2.6%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">LVHD</td><td class="mu">Low vol dividend — income anchor</td><td class="mn">50</td><td class="mn">$42.67</td><td class="mn" id="px-LVHD">$42.67</td><td class="mn">$2,134</td><td class="dn">-$0.50</td><td class="mn">2.1%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">XLI</td><td class="mu">Industrials — infra + defense spending</td><td class="mn">13</td><td class="mn">$163.59</td><td class="mn" id="px-XLI">$163.59</td><td class="mn">$2,127</td><td class="up">+$4.65</td><td class="mn">2.1%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">XLP</td><td class="mu">Consumer staples — recession hedge</td><td class="mn">25</td><td class="mn">$81.71</td><td class="mn" id="px-XLP">$81.71</td><td class="mn">$2,043</td><td class="up">+$0.13</td><td class="mn">2.0%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">XLE</td><td class="mu">Energy — oil premium structural</td><td class="mn">30</td><td class="mn">$59.15</td><td class="mn" id="px-XLE">$59.15</td><td class="mn">$1,775</td><td class="up">+$0.60</td><td class="mn">1.8%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">XLK</td><td class="mu">Tech — de-escalation beneficiary</td><td class="mn">10</td><td class="mn">$135.42</td><td class="mn" id="px-XLK">$135.42</td><td class="mn">$1,354</td><td class="dn">-$0.06</td><td class="mn">1.4%</td><td><span class="tag tg-long">LONG</span></td></tr>
+        <tr><td class="tk">PSQ</td><td class="mu">NASDAQ inverse — tech hedge</td><td class="mn">30</td><td class="mn">$31.86</td><td class="mn" id="px-PSQ">$31.86</td><td class="mn">$956</td><td class="dn">-$0.15</td><td class="mn">1.0%</td><td><span class="tag tg-hedge">HEDGE</span></td></tr>
+        <tr><td class="tk">TAIL</td><td class="mu">Tail risk — black swan protection</td><td class="mn">50</td><td class="mn">$11.66</td><td class="mn" id="px-TAIL">$11.66</td><td class="mn">$583</td><td class="dn">-$0.25</td><td class="mn">0.6%</td><td><span class="tag tg-hedge">HEDGE</span></td></tr>
+      </tbody>
+    </table>
+    <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-top:1px solid var(--border);font-family:var(--mono);font-size:11px;">
+      <span style="color:var(--muted);">9 positions | 21.6% deployed | 78.4% cash | VIX STRESS 0.5x sizing</span>
+      <span class="dn">Total P&L: -$75.85</span>
+    </div>
+  </div>
+
+  <div class="sh">Sector intelligence — current regime</div>
+  <div class="g2">
+    <div class="box">
+      <div class="box-head"><span style="color:var(--green2)">LEADING — FAVOR</span></div>
+      <div style="padding:14px 16px;">
+        <div class="sb-row"><div class="sb-name">Defense / Aerospace</div><div class="sb-track"><div class="sb-fill" style="width:95%;background:var(--green2);"></div></div><div class="sb-pct up">+19%</div></div>
+        <div class="sb-row"><div class="sb-name">Gold / Commodities</div><div class="sb-track"><div class="sb-fill" style="width:85%;background:var(--green2);"></div></div><div class="sb-pct up">+25%</div></div>
+        <div class="sb-row"><div class="sb-name">Energy</div><div class="sb-track"><div class="sb-fill" style="width:80%;background:var(--green2);"></div></div><div class="sb-pct up">+22%</div></div>
+        <div class="sb-row"><div class="sb-name">Materials / Rare Earth</div><div class="sb-track"><div class="sb-fill" style="width:70%;background:var(--green2);"></div></div><div class="sb-pct up">+18%</div></div>
+        <div class="sb-row"><div class="sb-name">Industrials</div><div class="sb-track"><div class="sb-fill" style="width:65%;background:var(--green2);"></div></div><div class="sb-pct up">+16%</div></div>
+        <div class="sb-row"><div class="sb-name">Healthcare</div><div class="sb-track"><div class="sb-fill" style="width:55%;background:var(--green2);"></div></div><div class="sb-pct up">+12%</div></div>
+      </div>
+    </div>
+    <div class="box">
+      <div class="box-head"><span style="color:var(--red2)">LAGGING — REQUIRE 7/14</span></div>
+      <div style="padding:14px 16px;">
+        <div class="sb-row"><div class="sb-name">Technology</div><div class="sb-track"><div class="sb-fill" style="width:20%;background:var(--red2);"></div></div><div class="sb-pct dn">-3%</div></div>
+        <div class="sb-row"><div class="sb-name">Consumer Cyclical</div><div class="sb-track"><div class="sb-fill" style="width:25%;background:var(--red2);"></div></div><div class="sb-pct dn">-5%</div></div>
+        <div class="sb-row"><div class="sb-name">Financials</div><div class="sb-track"><div class="sb-fill" style="width:15%;background:var(--red2);"></div></div><div class="sb-pct dn">-2%</div></div>
+        <div class="sb-row"><div class="sb-name">Mag 7</div><div class="sb-track"><div class="sb-fill" style="width:35%;background:var(--red2);"></div></div><div class="sb-pct dn">-8.8%</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GRANDMASTER ═══ -->
+<div class="panel" id="p-grandmaster">
+  <div class="sh">Grandmaster — APEX OS v6.0 — 277 minds — Fast-mode active</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Ask anything: stocks, portfolio construction, faith, social strategy, market analysis, trade ideas, life questions. Gate 1 never blocks casual questions.</div>
+
+  <div class="chat-box">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="cm cm-bot">APEX OS v6.0 GRANDMASTER ACTIVATED ✓
+
+277 minds loaded. Fast-mode active. Faith layer online. Social intelligence tier ready.
+
+Ask me anything:
+— "Should I buy Oracle?" → Fast-mode direct analysis
+— "Build my friend a $10K portfolio" → Swensen + Dalio + Lynch framework
+— "Give me a faith lesson" → Daniel model, biblical wisdom
+— "How do I handle a difficult investor call?" → Voss + Carnegie + Van Edwards
+— "Analyze XLK given de-escalation" → Full sector + macro + lollapalooza
+
+No gate blocking. No hesitation. Direct answers always.</div>
+    </div>
+    <div class="thinking" id="thinking">277 minds synthesizing...</div>
+    <div class="chat-footer">
+      <input class="chat-inp" id="chat-inp" placeholder="Ask the Grandmaster anything..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">SEND</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ INTELLIGENCE ═══ -->
+<div class="panel" id="p-intelligence">
+  <div class="g2">
+    <div>
+      <div class="sh">Autonomous execution tiers — W23 (building now)</div>
+      <div class="box">
+        <div class="tier-row"><div class="tier-score up">12-14/14</div><div class="tier-action">Auto-execute immediately</div><div class="tier-human">Notify after fill</div></div>
+        <div class="tier-row"><div class="tier-score up">9-11/14</div><div class="tier-action">Auto-execute + alert</div><div class="tier-human">Send STOP to cancel</div></div>
+        <div class="tier-row"><div class="tier-score" style="color:var(--gold2);">7-8/14</div><div class="tier-action">Alert → auto in 30 min</div><div class="tier-human">Send STOP to cancel</div></div>
+        <div class="tier-row"><div class="tier-score" style="color:var(--orange);">5-6/14</div><div class="tier-action">Alert → wait for Y/N</div><div class="tier-human">Y or N required</div></div>
+        <div class="tier-row"><div class="tier-score dn">below 5</div><div class="tier-action">REJECTED — no action</div><div class="tier-human">No notification</div></div>
+      </div>
+
+      <div class="sh" style="margin-top:16px;">IR pipeline status</div>
+      <div class="box">
+        <div class="cr"><div class="cr-name">invest@brewcapitallp.com</div><span class="tag tg-live">LIVE</span><div class="cr-deadline">Proton Business</div></div>
+        <div class="cr"><div class="cr-name">SPF / DKIM / DMARC</div><span class="tag tg-live">LIVE</span><div class="cr-deadline">Cloudflare DNS</div></div>
+        <div class="cr"><div class="cr-name">Proton SMTP in W4</div><span class="tag tg-fix">NOT WIRED</span><div class="cr-deadline">Tier 1 priority</div></div>
+        <div class="cr"><div class="cr-name">W4 3x daily triggers</div><span class="tag tg-fix">NOT BUILT</span><div class="cr-deadline">8AM/11AM/2PM</div></div>
+        <div class="cr"><div class="cr-name">Apollo investor list</div><span class="tag tg-todo">NOT BUILT</span><div class="cr-deadline">Free tier</div></div>
+        <div class="cr"><div class="cr-name">Hunter.io verification</div><span class="tag tg-todo">NOT BUILT</span><div class="cr-deadline">Free tier</div></div>
+        <div class="cr"><div class="cr-name">Pitch deck — 15 slides</div><span class="tag tg-todo">NOT BUILT</span><div class="cr-deadline">LinkedIn input needed</div></div>
+        <div class="cr"><div class="cr-name">LinkedIn Company Page</div><span class="tag tg-todo">NOT BUILT</span><div class="cr-deadline">Tier 2</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sh">Compliance tracker</div>
+      <div class="box">
+        <div class="cr"><div class="cr-name">Form D 506(b)</div><span class="tag tg-live">FILED</span><div class="cr-deadline">April 1, 2026</div></div>
+        <div class="cr"><div class="cr-name">EDGAR annual confirm</div><span class="tag tg-todo">PENDING</span><div class="cr-deadline">March 31, 2027</div></div>
+        <div class="cr"><div class="cr-name">Reg S-P privacy policy</div><span class="tag tg-done">DRAFTED</span><div class="cr-deadline">Due June 3, 2026</div></div>
+        <div class="cr"><div class="cr-name">Texas Blue Sky</div><span class="tag tg-todo">ON TRIGGER</span><div class="cr-deadline">First TX investor +15d</div></div>
+        <div class="cr"><div class="cr-name">Wyoming annual report</div><span class="tag tg-todo">PENDING</span><div class="cr-deadline">March 1, 2027</div></div>
+        <div class="cr"><div class="cr-name">Form D amendment</div><span class="tag tg-todo">ON TRIGGER</span><div class="cr-deadline">First wire +15d</div></div>
+        <div class="cr"><div class="cr-name">Wyoming auto-renew OFF</div><span class="tag tg-fix">PENDING</span><div class="cr-deadline">Brew Fund + Winning Brew</div></div>
+        <div class="cr"><div class="cr-name">YubiKey purchase</div><span class="tag tg-todo">ON TRIGGER</span><div class="cr-deadline">After first wire</div></div>
+        <div class="cr"><div class="cr-name">Mercury webhook</div><span class="tag tg-todo">ON TRIGGER</span><div class="cr-deadline">After first wire</div></div>
+      </div>
+
+      <div class="sh" style="margin-top:16px;">Fund structure</div>
+      <div class="box">
+        <div class="cr"><div class="cr-name">Brew Capital LP</div><div class="cr-deadline">EIN 41-5090198</div></div>
+        <div class="cr"><div class="cr-name">Brew Fund LLC (GP)</div><div class="cr-deadline">EIN 41-5060918</div></div>
+        <div class="cr"><div class="cr-name">Winning Brew LLC (Holdco)</div><div class="cr-deadline">EIN 41-4918484</div></div>
+        <div class="cr"><div class="cr-name">CIK</div><div class="cr-deadline">0002124864</div></div>
+        <div class="cr"><div class="cr-name">SEC File Number</div><div class="cr-deadline">021-578711</div></div>
+        <div class="cr"><div class="cr-name">Mercury banking</div><span class="tag tg-live">APPROVED</span><div class="cr-deadline">Brew Fund LLC</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCHOOL ═══ -->
+<div class="panel" id="p-school">
+
+  <div class="devotional">
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:12px;">Daily Devotional — 5:30 AM — Daniel Model</div>
+    <div class="dev-verse">"But Daniel purposed in his heart that he would not defile himself with the king's choice food or with the wine which he drank, so he sought permission from the commander of the officials that he might not defile himself."</div>
+    <div class="dev-ref">Daniel 1:8 — NASB</div>
+    <div class="dev-section">The context</div>
+    <div class="dev-text">Daniel was taken from Jerusalem into the most powerful empire on earth. He was given every worldly advantage — the king's food, the king's wine, an elite education. Babylon was designed to make him forget who he was. He was 16 years old when this happened. And he purposed in his heart — a decision made before the test arrived.</div>
+    <div class="dev-section">What God is saying to you today</div>
+    <div class="dev-text">You are building something in the financial world — Babylon by another name. The system will offer you shortcuts. Compromises that seem small. Edges that bend the rules. Daniel's power was that he decided before temptation arrived. The decision made in the quiet morning protects you in the pressure of the afternoon.</div>
+    <div class="dev-section">Connection to Brew Capital</div>
+    <div class="dev-text">Excellence without compromise is not just a faith principle — it's a competitive advantage. Investors trust managers who have character. The fund built on integrity outlasts every fund built on cleverness. You are not just building a hedge fund. You are demonstrating what a man of God can build in Babylon.</div>
+    <div class="affirmation">I am rooted and grounded. God goes before me into every conversation, every meeting, every trade. His hand is on what I build. Excellence is my worship. Integrity is my edge. I do not compromise on what matters.</div>
+    <div style="margin-top:12px;padding:10px 14px;background:rgba(46,204,113,0.05);border:1px solid rgba(46,204,113,0.15);border-radius:4px;font-size:13px;line-height:1.6;">
+      <strong style="color:var(--green2);font-family:var(--mono);font-size:10px;letter-spacing:0.1em;">PRAYER:</strong><br>
+      Lord, go before me today. Give me wisdom that confounds the wise. Give me favor I did not earn. Let every conversation point to something larger than me. Protect this work. Use it. In Jesus' name, amen.
+    </div>
+    <div style="margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--muted);">PREACHING NOTE: Three points from this text — (1) The decision before the test, (2) Wisdom that comes from holiness, (3) Daniel's excellence as witness in Babylon. Develop into full sermon outline.</div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="lesson-card">
+        <div class="lc-title">Social Mastery — Today's Lesson</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:8px;">Chris Voss — Tactical Empathy</div>
+        <div class="lc-body">The most powerful phrase in any high-stakes conversation is not an argument — it's a label. "It seems like you have some concerns about this." Not a question. Not a statement. A label that names what the other person is feeling before they say it. When you name someone's emotion accurately, they feel deeply understood. Defense drops. Trust forms instantly.</div>
+        <div class="lc-sub">Practice today: In one conversation, label someone's emotion before they express it. Watch what happens.</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:13%;"></div></div>
+        <div class="progress-label"><span>Day 12 / 90</span><span>Social mastery curriculum</span></div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lc-title">Distressed Debt — Today's Lesson</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:8px;">Howard Marks — The Cycle of Credit</div>
+        <div class="lc-body">Distressed debt investing begins where others stop looking. When a company's bonds trade at 40 cents on the dollar, most investors see failure. Marks sees an asset that pays par at maturity if the company survives — a 150% return embedded in what everyone else called garbage. The edge is doing the work nobody else will do: reading the actual bond indenture, understanding the capital structure, modeling recovery scenarios.</div>
+        <div class="lc-sub">AUM trigger: Distressed debt strategy unlocks at $2M AUM. Build the knowledge now.</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:8%;"></div></div>
+        <div class="progress-label"><span>Lesson 4 / 52</span><span>Distressed debt curriculum</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="lesson-card">
+        <div class="lc-title">Investment Education — Today's Lesson</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:8px;">Jim Simons — The Edge That Never Stops</div>
+        <div class="lc-body">Simons never traded on intuition. Every trade had a statistical edge proven across thousands of historical instances. His question before every position: "What is the base rate of success for this exact setup?" Not this setup in theory — this setup measured across actual data. Brew Capital's lollapalooza counter is the same idea: stack factors until the base rate is undeniable.</div>
+        <div class="lc-sub">Application: Every trade signal gets scored 1-14. 9+ means the math says yes.</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:6%;"></div></div>
+        <div class="progress-label"><span>Week 3 / 52</span><span>Systematic trading curriculum</span></div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lc-title">Leadership & Growth</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted2);margin-bottom:8px;">William Buckley — The Debate Method</div>
+        <div class="lc-body">Buckley never raised his voice. He lowered it. His power came from precision — the exact word, the measured pause, the devastating question delivered with perfect calm. He understood that in debate, the person who loses composure has already lost the argument. Prepare your strongest objection to your own position first. Then you can answer it before they raise it.</div>
+        <div class="lc-sub">Speech practice: Record 3 minutes on any topic. Listen back. Count filler words. Reduce by half each week.</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:10%;"></div></div>
+        <div class="progress-label"><span>Day 9 / 90</span><span>Leadership & debate curriculum</span></div>
+      </div>
+
+      <div class="lesson-card">
+        <div class="lc-title">Growth Tracker</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px;">ALL ACTIVE CURRICULUMS</div>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;justify-content:space-between;"><span>Bible reading plan</span><span class="mn" style="color:var(--gold2);">Day 2 / 365</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>52-verse memory plan</span><span class="mn" style="color:var(--gold2);">Verse 1 / 52</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Preaching development</span><span class="mn" style="color:var(--gold2);">Month 1 / 12</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Social mastery</span><span class="mn" style="color:var(--gold2);">Day 12 / 90</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Distressed debt</span><span class="mn" style="color:var(--gold2);">Lesson 4 / 52</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Activist investing</span><span class="mn" style="color:var(--gold2);">Not started</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Trading education</span><span class="mn" style="color:var(--gold2);">Week 3 / 52</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Theology school</span><span class="mn" style="color:var(--gold2);">Week 1 / 52</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Leadership & debate</span><span class="mn" style="color:var(--gold2);">Day 9 / 90</span></div>
+        </div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:10px;color:var(--muted);">277 minds. Every lesson different. They never end.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BUILD LIST ═══ -->
+<div class="panel" id="p-build">
+  <div class="g3" style="margin-bottom:20px;">
+    <div class="sc"><div class="sc-lbl">Total items</div><div class="sc-val gold">90</div><div class="sc-sub">Across all tiers</div></div>
+    <div class="sc"><div class="sc-lbl">Completed today</div><div class="sc-val up">6</div><div class="sc-sub">APEX OS v6, portfolio, Form D...</div></div>
+    <div class="sc"><div class="sc-lbl">Building next</div><div class="sc-val">Kill switch</div><div class="sc-sub">Then autonomous execution</div></div>
+  </div>
+
+  <div class="sh">Tier 1 — building now</div>
+  <div class="box" style="margin-bottom:16px;">
+    <div class="bi"><div class="bi-num">01</div><div class="bi-body"><div class="bi-name">W0 Kill switch subworkflow</div><div class="bi-sub">One subworkflow wired into all 15. One button halts everything.</div></div><span class="tag tg-now">BUILDING NOW</span></div>
+    <div class="bi"><div class="bi-num">02</div><div class="bi-body"><div class="bi-name">W23 autonomous execution tiers</div><div class="bi-sub">9+/14 auto | 7-8/14 notify+30min | 5-6/14 Y/N | UNDO command</div></div><span class="tag tg-next">NEXT</span></div>
+    <div class="bi"><div class="bi-num">03</div><div class="bi-body"><div class="bi-name">Alpaca monitoring — signal to auto-execution pipeline</div><div class="bi-sub">W1/W2 → lollapalooza score → W23 fires. Zero manual input for 9+/14.</div></div><span class="tag tg-next">NEXT</span></div>
+    <div class="bi"><div class="bi-num">04</div><div class="bi-body"><div class="bi-name">W4 — Proton SMTP + 3x daily + full email preview</div><div class="bi-sub">8AM/11AM/2PM. Full draft visible before Y/N. Approval cards connected.</div></div><span class="tag tg-next">NEXT</span></div>
+    <div class="bi"><div class="bi-num">05</div><div class="bi-body"><div class="bi-name">Master fund profile — needs LinkedIn screenshots</div><div class="bi-sub">Unlocks pitch deck, all 20 minority applications, IR email personalization</div></div><span class="tag tg-fix">BLOCKED — INPUT NEEDED</span></div>
+  </div>
+
+  <div class="sh">Tier 2 — capital raise engine</div>
+  <div class="box" style="margin-bottom:16px;">
+    <div class="bi"><div class="bi-num">06</div><div class="bi-body"><div class="bi-name">Apollo.io investor list — Houston + national + Dubai</div><div class="bi-sub">Free tier 10K credits/mo. Family office CIO filter. Export → Google Sheets → W4.</div></div><span class="tag tg-todo">TIER 2</span></div>
+    <div class="bi"><div class="bi-num">07</div><div class="bi-body"><div class="bi-name">Pitch deck — 15 slides</div><div class="bi-sub">Claude builds after LinkedIn profile received. Watermarked per recipient.</div></div><span class="tag tg-todo">TIER 2</span></div>
+    <div class="bi"><div class="bi-num">08</div><div class="bi-body"><div class="bi-name">W4 IR Writing Intelligence prompt</div><div class="bi-sub">Cialdini + Voss + Van Edwards + Ogilvy + Belfort loaded in W4 Claude node.</div></div><span class="tag tg-todo">TIER 2</span></div>
+    <div class="bi"><div class="bi-num">09</div><div class="bi-body"><div class="bi-name">All 20 minority / diverse manager applications</div><div class="bi-sub">NYC, MassPRIM, CalPERS, LACERA, Illinois TRS, IMRF, HFR, Preqin, eVestment...</div></div><span class="tag tg-todo">TIER 2</span></div>
+    <div class="bi"><div class="bi-num">10</div><div class="bi-body"><div class="bi-name">LinkedIn Company Page setup</div><div class="bi-sub">W7 generates weekly post draft. W19 monitors target investor activity.</div></div><span class="tag tg-todo">TIER 2</span></div>
+    <div class="bi"><div class="bi-num">11</div><div class="bi-body"><div class="bi-name">Email warmup sequence</div><div class="bi-sub">invest@, tarun@, info@ — 5/day wk1, 15/day wk2, 30/day wk3, 50/day wk4</div></div><span class="tag tg-todo">TIER 2</span></div>
+  </div>
+
+  <div class="sh">Tier 3 — dashboard and command center</div>
+  <div class="box" style="margin-bottom:16px;">
+    <div class="bi"><div class="bi-num">12</div><div class="bi-body"><div class="bi-name">Alpaca API live prices — replace Yahoo Finance</div><div class="bi-sub">Real-time P&L. Position sync. Paper vs live split view.</div></div><span class="tag tg-todo">TIER 3</span></div>
+    <div class="bi"><div class="bi-num">13</div><div class="bi-body"><div class="bi-name">Approval cards — full email body + Writing Intelligence score</div><div class="bi-sub">Y sends via Proton. N regenerates. W4 writes to Google Sheets APPROVALS tab.</div></div><span class="tag tg-todo">TIER 3</span></div>
+    <div class="bi"><div class="bi-num">14</div><div class="bi-body"><div class="bi-name">Investor portal — read-only separate URL</div><div class="bi-sub">NAV / returns / Sharpe / drawdown display for LPs.</div></div><span class="tag tg-todo">TIER 3</span></div>
+    <div class="bi"><div class="bi-num">15</div><div class="bi-body"><div class="bi-name">Calendly integration</div><div class="bi-sub">TJ to share link. Booking triggers pre-call brief via @BrewCapitalBot 30 min before.</div></div><span class="tag tg-todo">TIER 3</span></div>
+  </div>
+
+  <div class="sh">Completed today — April 2, 2026</div>
+  <div class="box">
+    <div class="bi"><div class="bi-num">✓</div><div class="bi-body"><div class="bi-name">APEX OS v6.0 — 277 minds built</div><div class="bi-sub">Fast-mode, faith layer, social intelligence, multi-agent debate, W23 JS code node</div></div><span class="tag tg-done">DONE</span></div>
+    <div class="bi"><div class="bi-num">✓</div><div class="bi-body"><div class="bi-name">W23 chatbot — fast-mode activated</div><div class="bi-sub">Casual stock questions now bypass Gate 1. Direct analysis mode live.</div></div><span class="tag tg-done">DONE</span></div>
+    <div class="bi"><div class="bi-num">✓</div><div class="bi-body"><div class="bi-name">9-position paper portfolio executed in Alpaca</div><div class="bi-sub">GLD, XLV, LVHD, XLI, XLP, XLE, XLK, PSQ, TAIL — all live paper positions</div></div><span class="tag tg-done">DONE</span></div>
+    <div class="bi"><div class="bi-num">✓</div><div class="bi-body"><div class="bi-name">Form D filed — SEC accepted</div><div class="bi-sub">Accession 0002124864-26-000002 | Rule 506(b) | April 1, 2026</div></div><span class="tag tg-done">DONE</span></div>
+    <div class="bi"><div class="bi-num">✓</div><div class="bi-body"><div class="bi-name">Command Center v3.0 built</div><div class="bi-sub">7 tabs: Command, Approvals, Portfolio, Grandmaster, Intelligence, School, Build List</div></div><span class="tag tg-done">DONE</span></div>
+  </div>
+</div>
+
+<script>
+// Clock
+function tick() {
+  const d = new Date();
+  const cst = new Date(d.toLocaleString('en-US',{timeZone:'America/Chicago'}));
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = `${pad(cst.getHours())}:${pad(cst.getMinutes())}:${pad(cst.getSeconds())} CST`;
+}
+setInterval(tick,1000); tick();
+
+// Tab switch
+function sw(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.navtab').forEach(t => t.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// Kill switch
+let killed = false;
+function killIt() {
+  if(!confirm('HALT ALL SYSTEMS?\n\nThis will stop all 15 workflows immediately.\nAlso send KILLSWITCH to @BrewCapitalBot.')) return;
+  killed = true;
+  document.getElementById('ks-st').textContent = 'KILLSWITCH ACTIVE — ALL SYSTEMS HALTED — Send RESUME to @BrewCapitalBot';
+  document.getElementById('ks-st').className = 'ks-st killed';
+  document.querySelector('.btn-halt').style.display = 'none';
+  document.getElementById('btn-resume').style.display = 'block';
+}
+function resumeIt() {
+  killed = false;
+  document.getElementById('ks-st').textContent = 'SYSTEMS ARMED — ALL 15 WORKFLOWS RUNNING';
+  document.getElementById('ks-st').className = 'ks-st';
+  document.querySelector('.btn-halt').style.display = 'block';
+  document.getElementById('btn-resume').style.display = 'none';
+}
+
+// Approvals
+function approve(btn, type) {
+  const card = btn.closest('.approval-card');
+  card.style.borderColor = 'rgba(46,204,113,0.4)';
+  card.style.opacity = '0.6';
+  btn.textContent = '✓ APPROVED — SENT';
+  btn.disabled = true;
+  card.querySelector('.btn-n').disabled = true;
+  console.log('Approved:', type);
+}
+function reject(btn) {
+  const card = btn.closest('.approval-card');
+  card.style.borderColor = 'rgba(231,76,60,0.4)';
+  card.style.opacity = '0.6';
+  btn.textContent = '✗ REJECTED — REGENERATING';
+  btn.disabled = true;
+  card.querySelector('.btn-y').disabled = true;
+}
+
+// Grandmaster chat
+async function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  const msgs = document.getElementById('chat-msgs');
+  const thinking = document.getElementById('thinking');
+  const q = inp.value.trim();
+  if (!q) return;
+
+  const um = document.createElement('div');
+  um.className = 'cm cm-user';
+  um.textContent = q;
+  msgs.appendChild(um);
+  inp.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  thinking.style.display = 'block';
+
+  const hasFormal = /zacks|levelfields|form 4|congressional|insider buying/i.test(q);
+  const mode = hasFormal ? 'SIGNAL_MODE' : 'FAST_MODE';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1200,
+        system:`APEX OS v6.0 — BREW CAPITAL GRANDMASTER — 277 MINDS. Mode: ${mode}. Fast-mode active — Gate 1 NEVER blocks casual questions.
+
+FUND: Brew Capital LP | NAV $100K paper | Form D FILED 0002124864-26-000002 | VIX 25.77 STRESS 0.5x sizing
+OPERATOR: TJ Jakkaraju, Managing Member | Houston TX | Indian American | Faith-driven
+
+PORTFOLIO: GLD 8sh @$428 | XLV 18sh @$146 | LVHD 50sh @$42 | XLI 13sh @$163 | XLP 25sh @$81 | XLE 30sh @$59 | XLK 10sh @$135 | PSQ 30sh @$31 | TAIL 50sh @$11
+
+SECTORS: Leading: Defense+19%, Gold+25%, Energy+22%, Materials+18%, Industrials+16%, Healthcare+12%. Lagging: Tech-3%, Consumer Cyclical-5%, Mag7-8.8%.
+
+MACRO: Iran de-escalation signals. Oil dropping toward $100. SPY 6,561. Rate cut odds 38% YE. VIX STRESS sizing applies.
+
+277 MINDS: Simons, Thorp, Dalio, Druckenmiller, Burry, Munger, Lynch, Graham, Marks, Voss, Cialdini, Carnegie, Greene, Navarro, Van Edwards, Daniel (biblical), Solomon, CSLewis, Keller, Bonhoeffer, Taleb, Spitznagel, Icahn, Ackman, Markowitz, Sharpe, Fama, Shiller, and 249 more.
+
+FOR ANY STOCK/ETF QUESTION: Run direct analysis using training knowledge. Sector fit, fundamentals, macro context, lollapalooza factors, Brew Capital fit. Never block on missing live data.
+FOR PORTFOLIO QUESTIONS: Apply Swensen endowment model, Dalio all-weather, Lynch growth, Markowitz diversification.
+FOR FAITH QUESTIONS: Daniel model. Biblical wisdom. Practical application. Personal and sincere.
+FOR SOCIAL/RELATIONSHIP QUESTIONS: Voss labeling, Carnegie genuine interest, Cialdini influence, Van Edwards first impressions.
+
+TEACHING PROTOCOL MANDATORY: After every recommendation, explain it like a smart 12-year-old who has never studied finance. Use analogies. Make money feel real and tangible. Every person should feel smarter after reading your response.
+
+ALWAYS END WITH:
+GRANDMASTER DECISION: [direct answer]
+CONFIDENCE: [X/10]
+THE MIND: [primary mind]
+PLAIN ENGLISH: [2 sentences, 12-year-old level]
+BREW CAPITAL FIT: [BUY/WATCHLIST/PASS/N-A]`,
+        messages:[{role:'user', content:q}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || 'Connection error. Check Anthropic API.';
+    thinking.style.display = 'none';
+    const bm = document.createElement('div');
+    bm.className = 'cm cm-bot';
+    bm.textContent = text;
+    msgs.appendChild(bm);
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch(e) {
+    thinking.style.display = 'none';
+    const em = document.createElement('div');
+    em.className = 'cm cm-bot';
+    em.textContent = 'Connection error. Try again.';
+    msgs.appendChild(em);
+  }
+}
+</script>
+</body>
+</html>
